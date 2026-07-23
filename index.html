@@ -105,6 +105,8 @@
   .t-red .type-dot { background: var(--red); }
   .t-white .type-dot { background: var(--white-w); }
   .t-sparkling .type-dot { background: var(--sparkling); }
+  .t-rose .type-dot { background: #e8a0b4; }
+  .wine-card .wdesc { font-size: 12px; color: var(--muted); margin-top: 6px; font-style: italic; }
   .empty { color: var(--muted); font-size: 13px; padding: 24px 0; text-align: center; }
 </style>
 </head>
@@ -196,61 +198,9 @@ const MAP_VIEWS = {
   champagne: { center: [48.85, 4.05], zoom: 9 }
 };
 
-const WINES = [
-  // 샤블리
-  { name: "샤블리 그랑 크뤼 레 클로", producer: "도멘 윌리엄 페브르", region: "chablis", appellation: "Chablis Grand Cru", grape: "샤르도네", type: "white", vintage: 2021, price: "18만원대" },
-  { name: "샤블리 프르미에 크뤼 몽테 드 토네르", producer: "도멘 프랑수아 라브노", region: "chablis", appellation: "Chablis 1er Cru", grape: "샤르도네", type: "white", vintage: 2020, price: "30만원대" },
-  { name: "샤블리 뱀 드 비네", producer: "라 샤블리지엔", region: "chablis", appellation: "Chablis", grape: "샤르도네", type: "white", vintage: 2022, price: "4만원대" },
-  { name: "쁘띠 샤블리", producer: "도멘 크리스티앙 모로", region: "chablis", appellation: "Petit Chablis", grape: "샤르도네", type: "white", vintage: 2022, price: "3만원대" },
-  // 코트 드 뉘
-  { name: "로마네 콩티", producer: "도멘 드 라 로마네 콩티", region: "cote-de-nuits", appellation: "Romanée-Conti Grand Cru", grape: "피노 누아", type: "red", vintage: 2019, price: "위탁 문의" },
-  { name: "샹베르탱 그랑 크뤼", producer: "도멘 아르망 루소", region: "cote-de-nuits", appellation: "Chambertin Grand Cru", grape: "피노 누아", type: "red", vintage: 2018, price: "300만원대" },
-  { name: "주브레-샹베르탱 비에유 비뉴", producer: "도멘 드니 모르테", region: "cote-de-nuits", appellation: "Gevrey-Chambertin", grape: "피노 누아", type: "red", vintage: 2020, price: "25만원대" },
-  { name: "뉘-생-조르주 프르미에 크뤼 레 생-조르주", producer: "도멘 앙리 구주", region: "cote-de-nuits", appellation: "Nuits-Saint-Georges 1er Cru", grape: "피노 누아", type: "red", vintage: 2019, price: "28만원대" },
-  { name: "샹볼-뮈지니", producer: "도멘 조르주 루미에", region: "cote-de-nuits", appellation: "Chambolle-Musigny", grape: "피노 누아", type: "red", vintage: 2020, price: "45만원대" },
-  { name: "부르고뉴 피노 누아", producer: "도멘 메오-카뮈제", region: "cote-de-nuits", appellation: "Bourgogne Rouge", grape: "피노 누아", type: "red", vintage: 2021, price: "12만원대" },
-  // 코트 드 본
-  { name: "몽라셰 그랑 크뤼", producer: "도멘 르플레브", region: "cote-de-beaune", appellation: "Montrachet Grand Cru", grape: "샤르도네", type: "white", vintage: 2019, price: "위탁 문의" },
-  { name: "뫼르소 프르미에 크뤼 페리에르", producer: "도멘 코슈-뒤리", region: "cote-de-beaune", appellation: "Meursault 1er Cru", grape: "샤르도네", type: "white", vintage: 2020, price: "150만원대" },
-  { name: "퓔리니-몽라셰", producer: "도멘 에티엔 소제", region: "cote-de-beaune", appellation: "Puligny-Montrachet", grape: "샤르도네", type: "white", vintage: 2021, price: "22만원대" },
-  { name: "볼네 프르미에 크뤼 클로 데 셴", producer: "도멘 미셸 라파르주", region: "cote-de-beaune", appellation: "Volnay 1er Cru", grape: "피노 누아", type: "red", vintage: 2019, price: "20만원대" },
-  { name: "포마르 프르미에 크뤼 뤼지앙", producer: "도멘 콩트 아르망", region: "cote-de-beaune", appellation: "Pommard 1er Cru", grape: "피노 누아", type: "red", vintage: 2018, price: "23만원대" },
-  { name: "코르통-샤를마뉴 그랑 크뤼", producer: "도멘 보노 뒤 마르트레", region: "cote-de-beaune", appellation: "Corton-Charlemagne Grand Cru", grape: "샤르도네", type: "white", vintage: 2020, price: "60만원대" },
-  // 코트 샬로네즈
-  { name: "메르퀴레 프르미에 크뤼 클로 뒤 루아", producer: "도멘 페블레", region: "cote-chalonnaise", appellation: "Mercurey 1er Cru", grape: "피노 누아", type: "red", vintage: 2020, price: "8만원대" },
-  { name: "지브리 프르미에 크뤼", producer: "도멘 조블로", region: "cote-chalonnaise", appellation: "Givry 1er Cru", grape: "피노 누아", type: "red", vintage: 2021, price: "7만원대" },
-  { name: "륄리 블랑", producer: "도멘 자크송", region: "cote-chalonnaise", appellation: "Rully", grape: "샤르도네", type: "white", vintage: 2021, price: "6만원대" },
-  { name: "부즈롱 알리고테", producer: "도멘 드 빌렌", region: "cote-chalonnaise", appellation: "Bouzeron", grape: "알리고테", type: "white", vintage: 2022, price: "5만원대" },
-  // 마코네
-  { name: "푸이-퓌세 클로 드 라 로슈", producer: "도멘 자크 사우마즈", region: "maconnais", appellation: "Pouilly-Fuissé", grape: "샤르도네", type: "white", vintage: 2021, price: "9만원대" },
-  { name: "생-베랑", producer: "도멘 라 수프랑딘", region: "maconnais", appellation: "Saint-Véran", grape: "샤르도네", type: "white", vintage: 2022, price: "5만원대" },
-  { name: "마콩-빌라주", producer: "도멘 드 라 보리", region: "maconnais", appellation: "Mâcon-Villages", grape: "샤르도네", type: "white", vintage: 2022, price: "3만원대" },
-  { name: "비레-클레세", producer: "도멘 앙드레 보노므", region: "maconnais", appellation: "Viré-Clessé", grape: "샤르도네", type: "white", vintage: 2021, price: "6만원대" },
-  // 몽타뉴 드 랭스
-  { name: "크뤼그 그랑 퀴베", producer: "크뤼그 (Krug)", region: "montagne-de-reims", appellation: "Champagne", grape: "블렌드", type: "sparkling", vintage: "NV", price: "35만원대" },
-  { name: "부지 그랑 크뤼 브뤼", producer: "폴 바라", region: "montagne-de-reims", appellation: "Champagne Grand Cru", grape: "피노 누아", type: "sparkling", vintage: "NV", price: "12만원대" },
-  { name: "베르즈네 블랑 드 누아", producer: "에글리-우리에", region: "montagne-de-reims", appellation: "Champagne Grand Cru", grape: "피노 누아", type: "sparkling", vintage: "NV", price: "30만원대" },
-  { name: "뵈브 클리코 옐로 라벨", producer: "뵈브 클리코", region: "montagne-de-reims", appellation: "Champagne", grape: "블렌드", type: "sparkling", vintage: "NV", price: "9만원대" },
-  // 발레 드 라 마른
-  { name: "돔 페리뇽", producer: "모엣 & 샹동", region: "vallee-de-la-marne", appellation: "Champagne", grape: "블렌드", type: "sparkling", vintage: 2013, price: "35만원대" },
-  { name: "볼랭저 스페셜 퀴베", producer: "볼랭저 (Bollinger)", region: "vallee-de-la-marne", appellation: "Champagne", grape: "블렌드", type: "sparkling", vintage: "NV", price: "13만원대" },
-  { name: "라 클로즈리 레 베귄", producer: "제롬 프레보", region: "vallee-de-la-marne", appellation: "Champagne", grape: "피노 뫼니에", type: "sparkling", vintage: "NV", price: "40만원대" },
-  { name: "트리부 뫼니에", producer: "트리부 (Tribaut)", region: "vallee-de-la-marne", appellation: "Champagne", grape: "피노 뫼니에", type: "sparkling", vintage: "NV", price: "7만원대" },
-  // 코트 데 블랑
-  { name: "살롱 르 메닐 블랑 드 블랑", producer: "살롱 (Salon)", region: "cote-des-blancs", appellation: "Champagne Grand Cru", grape: "샤르도네", type: "sparkling", vintage: 2012, price: "150만원대" },
-  { name: "콩트 드 샹파뉴 블랑 드 블랑", producer: "테탱저", region: "cote-des-blancs", appellation: "Champagne", grape: "샤르도네", type: "sparkling", vintage: 2012, price: "30만원대" },
-  { name: "피에르 페테르 퀴베 드 레제르브", producer: "피에르 페테르", region: "cote-des-blancs", appellation: "Champagne Grand Cru", grape: "샤르도네", type: "sparkling", vintage: "NV", price: "10만원대" },
-  { name: "아그라파르 레 7 크뤼", producer: "아그라파르 (Agrapart)", region: "cote-des-blancs", appellation: "Champagne", grape: "샤르도네", type: "sparkling", vintage: "NV", price: "15만원대" },
-  // 코트 드 세잔
-  { name: "울리스 콜랭 레 마이용", producer: "울리스 콜랭", region: "cote-de-sezanne", appellation: "Champagne", grape: "샤르도네", type: "sparkling", vintage: "NV", price: "25만원대" },
-  { name: "르 브룅 드 뇌빌 블랑 드 블랑", producer: "르 브룅 드 뇌빌", region: "cote-de-sezanne", appellation: "Champagne", grape: "샤르도네", type: "sparkling", vintage: "NV", price: "8만원대" },
-  // 코트 데 바르
-  { name: "세드릭 부샤르 로즈 드 잔", producer: "세드릭 부샤르", region: "cote-des-bar", appellation: "Champagne", grape: "피노 누아", type: "sparkling", vintage: 2019, price: "30만원대" },
-  { name: "플뢰리 블랑 드 누아", producer: "플뢰리 (Fleury)", region: "cote-des-bar", appellation: "Champagne", grape: "피노 누아", type: "sparkling", vintage: "NV", price: "9만원대" },
-  { name: "드라피에 카르트 도르", producer: "드라피에 (Drappier)", region: "cote-des-bar", appellation: "Champagne", grape: "피노 누아", type: "sparkling", vintage: "NV", price: "7만원대" }
-];
+let WINES = [];  // data/wines.json 에서 로드 (3단계)
 
-const TYPE_LABEL = { red: "레드", white: "화이트", sparkling: "스파클링" };
+const TYPE_LABEL = { red: "레드", white: "화이트", sparkling: "스파클링", rose: "로제" };
 
 let currentMap = "bourgogne";
 let selectedRegion = null;
@@ -302,11 +252,14 @@ function makeGeoLayer(fc) {
 
 Promise.all([
   fetch("data/bourgogne.geojson").then(r => r.json()),
-  fetch("data/champagne.geojson").then(r => r.json())
-]).then(([b, c]) => {
+  fetch("data/champagne.geojson").then(r => r.json()),
+  fetch("data/wines.json").then(r => r.json())
+]).then(([b, c, wines]) => {
   geoLayers.bourgogne = makeGeoLayer(b);
   geoLayers.champagne = makeGeoLayer(c);
+  WINES = wines;
   showLayerFor(currentMap);
+  renderHome();
 }).catch(() => {
   document.getElementById("map-title").textContent =
     "경계 데이터를 불러오지 못했습니다 — 새로고침해 주세요";
@@ -328,13 +281,15 @@ function highlightRegion(id) {
 /* ───────── 오른쪽 패널 렌더링 ───────── */
 function wineCard(w) {
   const regionName = REGIONS[w.region] ? REGIONS[w.region].name.split(" (")[0] : "";
+  const producer = w.producerOrig ? `${w.producerKo} (${w.producerOrig})` : w.producerKo;
   return `<div class="wine-card t-${w.type}">
-    <div class="top"><span class="name"><span class="type-dot"></span>${w.name}</span><span class="vintage">${w.vintage}</span></div>
-    <div class="producer">${w.producer}</div>
+    <div class="top"><span class="name"><span class="type-dot"></span>${w.nameKo}</span><span class="vintage">${w.vintage}</span></div>
+    <div class="producer">${producer}</div>
     <div class="meta">
       <span>${w.appellation}</span><span>${w.grape}</span>
-      <span>${TYPE_LABEL[w.type]}</span><span>${w.price}</span><span>📍 ${regionName}</span>
+      <span>${TYPE_LABEL[w.type] || w.type}</span><span>${w.price}</span><span>📍 ${regionName}</span>
     </div>
+    ${w.desc ? `<div class="wdesc">${w.desc}</div>` : ""}
   </div>`;
 }
 
@@ -357,7 +312,8 @@ function renderSearch(q) {
   const query = q.trim().toLowerCase();
   const results = WINES.filter(w => {
     const regionName = REGIONS[w.region] ? REGIONS[w.region].name : "";
-    return [w.name, w.producer, w.appellation, w.grape, regionName, TYPE_LABEL[w.type]]
+    return [w.nameKo, w.nameOrig, w.producerKo, w.producerOrig,
+            w.appellation, w.grape, w.desc, regionName, TYPE_LABEL[w.type]]
       .join(" ").toLowerCase().includes(query);
   });
   panel.innerHTML = `
