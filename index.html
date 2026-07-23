@@ -4,105 +4,60 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vin Carte — 프랑스 와인 지도</title>
-<meta name="description" content="부르고뉴와 샹파뉴의 실제 밭 경계 지도에서 와인을 찾아보세요. INAO 공식 경계 데이터 기반의 한국어 와인 지도.">
+<meta name="description" content="부르고뉴와 샹파뉴의 실제 밭 경계 지도에서 와인을 찾아보세요.">
 <style>
-  :root {
-    --bg: #16121a; --panel: #211b28; --panel2: #2a2233; --line: #3a3145;
-    --text: #f2edf5; --muted: #c1b6cf; --wine: #b0356b; --wine-soft: #d1789f;
-    --gold: #d9b96a;
-  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
-    background:
-      radial-gradient(1100px 500px at 80% -10%, rgba(176, 53, 107, 0.18), transparent 60%),
-      radial-gradient(900px 500px at 0% 110%, rgba(217, 185, 106, 0.08), transparent 55%),
-      var(--bg);
-    color: var(--text);
     font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-    min-height: 100vh; display: flex; flex-direction: column;
+    background: #131016;
+    position: relative;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden;
   }
-  main {
-    flex: 1; display: flex; flex-direction: column; justify-content: center;
-    max-width: 880px; margin: 0 auto; padding: 60px 24px 40px; width: 100%;
+  .photo {
+    position: absolute; inset: 0;
+    background-image: url("assets/vineyard.jpg");
+    background-size: cover; background-position: center 38%;
   }
-  .eyebrow { color: var(--gold); font-size: 15px; font-weight: 700; letter-spacing: 3px; margin-bottom: 14px; }
-  h1 { font-size: clamp(40px, 7vw, 64px); font-weight: 800; line-height: 1.15; }
-  h1 span { color: var(--wine-soft); }
-  .sub {
-    color: var(--muted); font-size: clamp(15px, 2.4vw, 18px); line-height: 1.8;
-    margin: 20px 0 36px; max-width: 560px;
+  .overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, #13101699 0%, #13101640 45%, #131016cc 100%);
   }
-  .stats { display: flex; gap: 28px; flex-wrap: wrap; margin-bottom: 40px; }
-  .stat .num { font-size: 28px; font-weight: 800; color: var(--gold); }
-  .stat .lbl { font-size: 13px; color: var(--muted); margin-top: 2px; }
-
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
-  a.card {
-    display: block; text-decoration: none; color: var(--text);
-    background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
-    padding: 22px 24px; transition: border-color .15s, transform .15s;
+  main { position: relative; z-index: 2; text-align: center; padding: 24px; }
+  h1 {
+    color: #f6f2f8; font-size: clamp(34px, 7vw, 60px); font-weight: 800;
+    letter-spacing: 0.28em; text-indent: 0.28em; line-height: 1.2;
   }
-  a.card:hover { border-color: var(--wine-soft); transform: translateY(-3px); }
-  a.card .icon { font-size: 26px; }
-  a.card .title { font-size: 17px; font-weight: 700; margin: 10px 0 6px; }
-  a.card .desc { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
-  a.card .go { display: inline-block; margin-top: 12px; font-size: 13px; color: var(--gold); font-weight: 600; }
-
+  h1 span { color: #d1789f; }
+  .line { width: 44px; height: 1px; background: #d9b96a; margin: 30px auto; }
+  nav { display: flex; gap: 34px; justify-content: center; flex-wrap: wrap; }
+  nav a {
+    color: #d9b96a; text-decoration: none; font-size: 15px;
+    letter-spacing: 0.2em; padding-bottom: 5px;
+    border-bottom: 1px solid #d9b96a55;
+    transition: border-color .15s, color .15s;
+  }
+  nav a:hover { border-color: #d9b96a; color: #f2dfae; }
   footer {
-    padding: 18px 24px 26px; text-align: center;
-    color: var(--muted); font-size: 12px; line-height: 1.8;
+    position: absolute; bottom: 16px; left: 0; right: 0; z-index: 2;
+    text-align: center; color: #ffffff66; font-size: 11px; letter-spacing: 0.08em;
   }
-  footer a { color: var(--muted); }
 </style>
 </head>
 <body>
-
-<main>
-  <div class="eyebrow">VIN CARTE</div>
-  <h1>프랑스 와인,<br>지도에서 <span>찾다</span></h1>
-  <p class="sub">
-    부르고뉴의 그랑 크뤼 밭 한 뙈기부터 샹파뉴의 언덕까지 —
-    프랑스 INAO 공식 경계 데이터로 그린 실제 밭 지도 위에서 와인을 탐험하세요.
-    밭을 클릭하면 그곳의 와인이 나타납니다.
-  </p>
-
-  <div class="stats">
-    <div class="stat"><div class="num" id="stat-wines">—</div><div class="lbl">등록 와인</div></div>
-    <div class="stat"><div class="num">712</div><div class="lbl">밭 경계 (클리마 포함)</div></div>
-    <div class="stat"><div class="num">10</div><div class="lbl">세부 지역</div></div>
-    <div class="stat"><div class="num">2</div><div class="lbl">와인 산지</div></div>
-  </div>
-
-  <div class="cards">
-    <a class="card" href="map.html">
-      <div class="icon">🍷</div>
-      <div class="title">부르고뉴 지도</div>
-      <div class="desc">로마네 콩티부터 샤블리까지. 아펠라시옹과 프르미에 크뤼 밭 단위로 클릭하는 지도.</div>
-      <span class="go">지도 열기 →</span>
-    </a>
-    <a class="card" href="map.html#champagne">
-      <div class="icon">🥂</div>
-      <div class="title">샹파뉴 지도</div>
-      <div class="desc">몽타뉴 드 랭스에서 코트 데 바르까지, 다섯 언덕의 샴페인을 만나보세요.</div>
-      <span class="go">지도 열기 →</span>
-    </a>
-    <a class="card" href="guide.html">
-      <div class="icon">📖</div>
-      <div class="title">가이드</div>
-      <div class="desc">등급 피라미드는 어떻게 읽는 걸까? 열 개 지역의 토양과 역사 이야기.</div>
-      <span class="go">읽으러 가기 →</span>
-    </a>
-  </div>
-</main>
-
-<footer>
-  경계 데이터: INAO (data.gouv.fr) · 지도: © OpenStreetMap © CARTO · Vin Carte
-</footer>
-
-<script>
-  fetch("data/wines.json").then(r => r.json())
-    .then(w => { document.getElementById("stat-wines").textContent = w.length; })
-    .catch(() => { document.getElementById("stat-wines").textContent = "100+"; });
-</script>
+  <div class="photo"></div>
+  <div class="overlay"></div>
+  <main>
+    <h1>VIN <span>CARTE</span></h1>
+    <div class="line"></div>
+    <nav>
+      <a href="map.html">부르고뉴</a>
+      <a href="map.html#champagne">샹파뉴</a>
+      <a href="guide.html">가이드</a>
+    </nav>
+  </main>
+  <footer>Romanée-Conti, Vosne-Romanée · 경계 데이터 INAO · 지도 © OpenStreetMap © CARTO</footer>
 </body>
 </html>
