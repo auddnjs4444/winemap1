@@ -123,7 +123,7 @@
 
 <main>
   <div class="map-area">
-    <div class="map-title" id="map-title">부르고뉴 (Bourgogne) — 원을 클릭하면 그 지역 와인이 나옵니다 · 지도는 드래그/휠로 이동·확대</div>
+    <div class="map-title" id="map-title">부르고뉴 (Bourgogne) — 색칠된 산지를 클릭하면 와인이 나옵니다 · 확대하면 밭 모양이 자세히 보여요</div>
     <div id="map"></div>
   </div>
 
@@ -268,42 +268,61 @@ L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
   maxZoom: 19
 }).addTo(map);
 
-/* 지역별 임시 클릭 원 생성 (2-2에서 INAO 실제 경계 폴리곤으로 교체 예정) */
-const regionCircles = {};
-Object.entries(REGIONS).forEach(([id, r]) => {
-  const circle = L.circle([r.lat, r.lng], {
-    radius: r.radius,
-    color: r.color, weight: 2,
-    fillColor: r.color, fillOpacity: 0.35
-  });
-  circle.bindTooltip(r.name.split(" (")[0], {
-    permanent: true, direction: "center", className: "region-tooltip"
-  });
-  circle.on("click", () => selectRegion(id));
-  circle.on("mouseover", () => circle.setStyle({ fillOpacity: 0.55 }));
-  circle.on("mouseout", () => circle.setStyle({
-    fillOpacity: selectedRegion === id ? 0.55 : 0.35
-  }));
-  regionCircles[id] = circle;
-});
+/* INAO 실제 경계 GeoJSON (2-2단계)
+   - bourgogne.geojson: 아펠라시옹별 실제 밭 경계 (INAO 파셀레르, 아펠라시옹 단위로 병합)
+   - champagne.geojson: AOC Champagne 지리적 영역을 5개 소지역으로 분할 */
+const geoLayers = { bourgogne: null, champagne: null };
+const featureLayers = [];   // { layer, sub } — 하이라이트용
 
-function showCirclesFor(mapName) {
-  Object.entries(REGIONS).forEach(([id, r]) => {
-    if (r.map === mapName) regionCircles[id].addTo(map);
-    else map.removeLayer(regionCircles[id]);
+function styleFor(sub, selected) {
+  const r = REGIONS[sub];
+  return {
+    color: selected ? "#d9b96a" : r.color,
+    weight: selected ? 2.5 : 1.2,
+    fillColor: r.color,
+    fillOpacity: selected ? 0.55 : 0.35
+  };
+}
+
+function makeGeoLayer(fc) {
+  return L.geoJSON(fc, {
+    style: f => styleFor(f.properties.subregion, false),
+    onEachFeature: (f, layer) => {
+      const sub = f.properties.subregion;
+      const app = f.properties.app;
+      const label = app === "Champagne" ? REGIONS[sub].name.split(" (")[0] : app;
+      layer.bindTooltip(label, { sticky: true, className: "region-tooltip" });
+      layer.on("click", () => selectRegion(sub));
+      layer.on("mouseover", () => layer.setStyle({ fillOpacity: 0.6 }));
+      layer.on("mouseout", () => layer.setStyle(styleFor(sub, selectedRegion === sub)));
+      featureLayers.push({ layer, sub });
+    }
   });
 }
-showCirclesFor("bourgogne");
 
-function highlightCircle(id) {
-  Object.entries(regionCircles).forEach(([cid, c]) => {
-    const sel = cid === id;
-    c.setStyle({
-      weight: sel ? 4 : 2,
-      color: sel ? "#d9b96a" : REGIONS[cid].color,
-      fillOpacity: sel ? 0.55 : 0.35
-    });
+Promise.all([
+  fetch("data/bourgogne.geojson").then(r => r.json()),
+  fetch("data/champagne.geojson").then(r => r.json())
+]).then(([b, c]) => {
+  geoLayers.bourgogne = makeGeoLayer(b);
+  geoLayers.champagne = makeGeoLayer(c);
+  showLayerFor(currentMap);
+}).catch(() => {
+  document.getElementById("map-title").textContent =
+    "경계 데이터를 불러오지 못했습니다 — 새로고침해 주세요";
+});
+
+function showLayerFor(mapName) {
+  ["bourgogne", "champagne"].forEach(m => {
+    const gl = geoLayers[m];
+    if (!gl) return;
+    if (m === mapName) gl.addTo(map);
+    else map.removeLayer(gl);
   });
+}
+
+function highlightRegion(id) {
+  featureLayers.forEach(({ layer, sub }) => layer.setStyle(styleFor(sub, sub === id)));
 }
 
 /* ───────── 오른쪽 패널 렌더링 ───────── */
@@ -352,7 +371,7 @@ function renderHome() {
   const regionList = Object.entries(REGIONS).filter(([, r]) => r.map === currentMap);
   panel.innerHTML = `
     <h2>${mapName} 와인 지도</h2>
-    <p class="desc">왼쪽 지도의 색깔 원을 클릭하면 해당 지역의 와인 목록이 표시됩니다. 지도는 드래그로 이동, 마우스 휠/버튼으로 확대·축소할 수 있습니다. 상단 검색창은 지역과 무관하게 전체 와인을 검색합니다.</p>
+    <p class="desc">왼쪽 지도의 색칠된 산지를 클릭하면 해당 지역의 와인 목록이 표시됩니다. 경계선은 프랑스 INAO 공식 데이터 기반의 실제 아펠라시옹 경계입니다. 확대하면 밭 모양까지 보여요. 상단 검색창은 지역과 무관하게 전체 와인을 검색합니다.</p>
     <div class="count-note">지역 ${regionList.length}곳 · 등록 와인 ${WINES.length}종</div>
     ${regionList.map(([id, r]) => `
       <div class="wine-card" style="cursor:pointer" onclick="selectRegion('${id}')">
@@ -366,7 +385,7 @@ function selectRegion(id) {
   searchInput.value = "";
   const r = REGIONS[id];
   if (r.map !== currentMap) switchMap(r.map, false);
-  highlightCircle(id);
+  highlightRegion(id);
   map.flyTo([r.lat, r.lng], 11, { duration: 0.8 });
   renderRegion(id);
 }
@@ -379,10 +398,10 @@ function switchMap(mapName, resetPanel = true) {
   document.getElementById("tab-champagne").classList.toggle("active", mapName === "champagne");
   document.getElementById("map-title").textContent =
     (mapName === "bourgogne" ? "부르고뉴 (Bourgogne)" : "샹파뉴 (Champagne)") +
-    " — 원을 클릭하면 그 지역 와인이 나옵니다 · 지도는 드래그/휠로 이동·확대";
-  showCirclesFor(mapName);
+    " — 색칠된 산지를 클릭하면 와인이 나옵니다 · 확대하면 밭 모양이 자세히 보여요";
+  showLayerFor(mapName);
   if (resetPanel) {
-    highlightCircle(null);
+    highlightRegion(null);
     map.flyTo(MAP_VIEWS[mapName].center, MAP_VIEWS[mapName].zoom, { duration: 0.8 });
     renderHome();
   }
@@ -396,7 +415,7 @@ searchInput.addEventListener("input", e => {
     selectedRegion ? renderRegion(selectedRegion) : renderHome();
     return;
   }
-  highlightCircle(null);
+  highlightRegion(null);
   selectedRegion = null;
   renderSearch(q);
 });
