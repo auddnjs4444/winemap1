@@ -105,6 +105,15 @@
   @media (max-width: 860px) { .side { border-left: none; border-top: 1px solid var(--line); min-height: auto; } }
   .side h2 { font-size: 18px; margin-bottom: 4px; }
   .side .desc { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 14px; }
+  .terroir {
+    font-size: 13.5px; line-height: 1.9; color: rgba(23, 18, 21, 0.82);
+    border-left: 2px solid var(--wine); padding-left: 12px; margin-bottom: 16px;
+  }
+  .wc-row { display: flex; gap: 14px; }
+  .wc-visual { flex: none; width: 34px; display: flex; justify-content: center; align-items: flex-start; padding-top: 2px; }
+  .wc-body { flex: 1; min-width: 0; }
+  .bottle { width: 17px; height: 60px; opacity: 0.82; }
+  .bottle-photo { width: 34px; height: 68px; object-fit: contain; }
   .badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
   .badge {
     font-size: 12px; padding: 3px 10px; border-radius: 0;
@@ -293,6 +302,7 @@ const filtersActive = () => FILTERS.type !== "all";
 
 /* ───────── 빈티지 점수 ───────── */
 let VINTAGE_SCORES = {};
+let TERROIR = {};
 function vintageScore(w) {
   const m = String(w.vintage || "").match(/\d{4}/);
   if (!m) return null;
@@ -451,8 +461,10 @@ Promise.all([
   fetch("data/bourgogne.geojson").then(r => r.json()),
   fetch("data/champagne.geojson").then(r => r.json()),
   fetch("data/wines.json").then(r => r.json()),
-  fetch("data/vintages.json").then(r => r.json())
-]).then(([b, c, wines, vintages]) => {
+  fetch("data/vintages.json").then(r => r.json()),
+  fetch("data/terroir.json").then(r => r.json()).catch(() => ({}))
+]).then(([b, c, wines, vintages, terroir]) => {
+  TERROIR = terroir;
   geoLayers.bourgogne = makeGeoLayer(b, f => !f.properties.denom);
   geoLayers.bourgognePC = makeGeoLayer(b, f => !!f.properties.denom);
   geoLayers.champagne = makeGeoLayer(c);
@@ -516,9 +528,11 @@ function renderAppellation(en, denomNote) {
   const r = REGIONS[en.sub];
   const wines = applyFilters(WINES.filter(w => w._appKey && en.keys.includes(w._appKey)));
   const climat = denomNote ? denomNote.replace(/premier cru/i, "1er Cru") : null;
+  const terroirText = en.keys.map(k => TERROIR[k]).find(Boolean);
   panel.innerHTML = `
     <h2>${en.app}${en.gc ? " ★" : ""}</h2>
     <p class="desc">${r.name.split(" (")[0]} 지역의 아펠라시옹${en.gc ? " · 그랑 크뤼" : ""}</p>
+    ${terroirText ? `<p class="terroir">${terroirText}</p>` : ""}
     ${climat ? `<div class="count-note">📍 클릭한 밭: <b>${climat}</b></div>` : ""}
     <div class="badge-row">
       <span class="badge" style="cursor:pointer" onclick="selectRegion('${en.sub}', false)">← ${r.name.split(" (")[0]} 전체 보기</span>
@@ -549,20 +563,34 @@ panel.addEventListener("click", e => {
 });
 
 /* ───────── 오른쪽 패널 렌더링 ───────── */
+/* 타입별 미니멀 보틀 실루엣 (스틸=부르고뉴 병, 스파클링=샴페인 병) */
+function bottleSVG(type) {
+  const c = { red: "#7a3040", white: "#b9a44c", sparkling: "#5f8ba0", rose: "#c76e86" }[type] || "#a09a94";
+  if (type === "sparkling")
+    return `<svg class="bottle" viewBox="0 0 24 78" aria-hidden="true"><path d="M12 2c1.5 0 2.6.9 2.6 2.6v6c0 6 4.4 8 4.4 16v44c0 3-2 5-5 5h-4c-3 0-5-2-5-5v-44c0-8 4.4-10 4.4-16v-6C9.4 2.9 10.5 2 12 2Z" fill="${c}"/></svg>`;
+  return `<svg class="bottle" viewBox="0 0 24 78" aria-hidden="true"><path d="M12 1c1.2 0 2.2.8 2.2 2.2v14c0 4.5 5 5.5 5 12v42c0 3.5-2 6-5.5 6h-3.4c-3.5 0-5.5-2.5-5.5-6v-42c0-6.5 5-7.5 5-12v-14C9.8 1.8 10.8 1 12 1Z" fill="${c}"/></svg>`;
+}
+
 function wineCard(w) {
   const regionName = REGIONS[w.region] ? REGIONS[w.region].name.split(" (")[0] : "";
   const producer = w.producerOrig ? `${w.producerKo} (${w.producerOrig})` : w.producerKo;
   const score = vintageScore(w);
   const vintageLabel = w.vintage
     ? `${w.vintage}${score ? ` · <b>${score}점</b>` : ""}` : "";
-  return `<div class="wine-card t-${w.type}" data-app="${w.appellation}" data-region="${w.region}" title="클릭하면 지도에서 위치를 보여줘요">
-    <div class="top"><span class="name"><span class="type-dot"></span>${w.nameKo}</span><span class="vintage">${vintageLabel}</span></div>
-    <div class="producer">${producer}</div>
-    <div class="meta">
-      <span>${w.appellation}</span><span>${w.grape}</span>
-      <span>${TYPE_LABEL[w.type] || w.type}</span><span>📍 ${regionName}</span>
+  const visual = w.photo
+    ? `<img class="bottle-photo" src="assets/wines/${w.photo}" alt="" loading="lazy">`
+    : bottleSVG(w.type);
+  return `<div class="wine-card wc-row t-${w.type}" data-app="${w.appellation}" data-region="${w.region}" title="클릭하면 지도에서 위치를 보여줘요">
+    <div class="wc-visual">${visual}</div>
+    <div class="wc-body">
+      <div class="top"><span class="name">${w.nameKo}</span><span class="vintage">${vintageLabel}</span></div>
+      <div class="producer">${producer}</div>
+      <div class="meta">
+        <span>${w.appellation}</span><span>${w.grape}</span>
+        <span>${TYPE_LABEL[w.type] || w.type}</span><span>📍 ${regionName}</span>
+      </div>
+      ${w.desc ? `<div class="wdesc">${w.desc}</div>` : ""}
     </div>
-    ${w.desc ? `<div class="wdesc">${w.desc}</div>` : ""}
   </div>`;
 }
 

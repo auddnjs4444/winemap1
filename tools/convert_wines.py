@@ -27,8 +27,8 @@ wines, errors = [], []
 for row in ws.iter_rows(min_row=2, values_only=True):
     if not any(row):
         continue
-    r = [(str(v).strip() if v is not None else "") for v in (list(row) + [""] * 11)[:11]]
-    name_ko, name_orig, prod_ko, prod_orig, region_ko, app, grape, type_ko, vintage, price, desc = r
+    r = [(str(v).strip() if v is not None else "") for v in (list(row) + [""] * 12)[:12]]
+    name_ko, name_orig, prod_ko, prod_orig, region_ko, app, grape, type_ko, vintage, price, desc, photo = r
     line = len(wines) + len(errors) + 2  # 대략적 줄 번호 표시용
     if not name_ko:
         continue
@@ -49,7 +49,7 @@ for row in ws.iter_rows(min_row=2, values_only=True):
         "producerKo": prod_ko, "producerOrig": prod_orig,
         "region": REGION_KO_TO_ID[region_ko], "appellation": app,
         "grape": grape, "type": TYPE_KO_TO_ID[type_ko],
-        "vintage": vintage, "price": price, "desc": desc,
+        "vintage": vintage, "price": price, "desc": desc, "photo": photo,
     })
 
 if errors:
