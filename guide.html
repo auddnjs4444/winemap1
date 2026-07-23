@@ -70,6 +70,23 @@
   td { color: var(--text); }
 
   .divider { border: none; border-top: 1px solid var(--line); margin: 52px 0; }
+
+  /* ── 모바일 최적화 ── */
+  @media (max-width: 640px) {
+    header { padding: 14px 16px; gap: 10px; }
+    header h1 { font-size: 17px; }
+    .back { padding: 7px 12px; font-size: 13px; }
+    nav.toc { margin-left: 0; width: 100%; }
+    nav.toc a { font-size: 12px; padding: 5px 10px; }
+    main { padding: 24px 16px 60px; }
+    h2 { font-size: 21px; margin-top: 36px; }
+    h3 { font-size: 17px; }
+    .card { padding: 18px 16px; }
+    .pyr-1, .pyr-2 { min-width: 0; width: 62%; }
+    .pyr-3 { width: 80%; }
+    table { font-size: 12px; }
+    th, td { padding: 6px 7px; }
+  }
 </style>
 </head>
 <body>

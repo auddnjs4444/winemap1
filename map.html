@@ -105,8 +105,8 @@
   }
   .count-note { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
   .gi { display: inline-block; }
-  /* 보라 포도 이모지를 색상 회전으로 연두-노랑 톤으로: 청포도 품종용 */
-  .gi-green { filter: hue-rotate(205deg) saturate(1.15) brightness(1.35); }
+  /* 청포도 품종: 이모지를 흑백화한 뒤 연두-노랑을 입힘 (기기 무관 일정한 색) */
+  .gi-green { filter: grayscale(1) sepia(1) saturate(4) hue-rotate(35deg) brightness(1.2); }
 
   .wine-card {
     background: var(--panel2); border: 1px solid var(--line); border-radius: 12px;
@@ -147,6 +147,21 @@
   .suggest div { padding: 8px 12px; font-size: 14px; cursor: pointer; }
   .suggest div:hover { background: var(--panel); }
   .suggest span { color: var(--muted); font-size: 13px; }
+
+  /* ── 모바일 최적화 ── */
+  @media (max-width: 640px) {
+    header { padding: 12px 14px 10px; gap: 10px; }
+    header h1 { font-size: 18px; }
+    .tabs button { padding: 8px 14px; font-size: 13px; }
+    .nav-guide { padding: 8px 12px; font-size: 13px; }
+    .search-wrap { min-width: 100%; max-width: none; order: 5; }
+    .search-wrap input { font-size: 16px; padding: 11px 14px 11px 38px; }
+    .map-title { font-size: 13px; padding: 8px 12px; }
+    .side { padding: 14px; }
+    .fchip { padding: 7px 14px; }
+    .map-legend { font-size: 11px; padding: 5px 9px; max-width: 60vw; }
+    .wine-card { padding: 12px; }
+  }
 </style>
 </head>
 <body>
