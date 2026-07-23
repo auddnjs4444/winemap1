@@ -19,35 +19,59 @@
     position: sticky; top: 0; z-index: 10;
     background: #fbfaf8f2; backdrop-filter: blur(6px);
     border-bottom: 1px solid var(--hair);
-    display: flex; align-items: baseline; gap: 28px;
-    padding: 18px 24px; max-width: 100%;
+    display: flex; align-items: baseline; gap: 26px;
+    padding: 18px 24px;
   }
-  .wordmark { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; color: var(--text); text-decoration: none; }
+  .wordmark { font-size: 15px; font-weight: 700; color: var(--text); text-decoration: none; }
   .wordmark span { color: var(--accent); }
-  header nav { margin-left: auto; display: flex; gap: 22px; }
-  header nav a { color: var(--muted); text-decoration: none; font-size: 13.5px; }
-  header nav a:hover { color: var(--accent); }
-
-  main { max-width: 640px; margin: 0 auto; padding: 64px 24px 100px; }
-
-  .eyebrow {
-    font-size: 11.5px; letter-spacing: 0.22em; color: var(--muted);
-    font-weight: 600; margin-bottom: 10px;
+  header nav { display: flex; gap: 20px; }
+  header nav a, header nav button {
+    color: var(--muted); text-decoration: none; font-size: 13.5px;
+    background: none; border: none; cursor: pointer; font-family: inherit; padding: 0;
   }
-  h2 { font-size: 25px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 14px; scroll-margin-top: 80px; }
-  .intro { color: var(--muted); font-size: 15px; margin-bottom: 8px; }
+  header nav a:hover, header nav button:hover { color: var(--accent); }
+  .progress { margin-left: auto; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
 
-  section.block { border-top: 1px solid var(--hair); margin-top: 56px; padding-top: 48px; }
-  section.block:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+  main { max-width: 680px; margin: 0 auto; padding: 0 24px 90px; }
 
-  article { margin-top: 44px; }
+  .paren { font-size: 12px; letter-spacing: 0.14em; color: var(--muted); }
+
+  /* ── 목차(홈) ── */
+  .hero { padding: 15vh 0 10vh; }
+  .hero h1 {
+    font-size: clamp(38px, 8vw, 66px); font-weight: 800;
+    line-height: 1.12; letter-spacing: -0.02em; margin-top: 18px;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .idx { margin-top: 9vh; }
+  .idx a {
+    display: flex; align-items: baseline; gap: 18px;
+    padding: 30px 0; border-bottom: 1px solid var(--hair);
+    text-decoration: none; color: var(--text);
+  }
+  .idx a:first-child { border-top: 1px solid var(--hair); }
+  .idx .no { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .idx .t { font-size: clamp(24px, 4.6vw, 36px); font-weight: 800; letter-spacing: -0.01em; transition: color .15s; }
+  .idx .arrow { margin-left: auto; color: var(--muted); font-size: 20px; transition: transform .2s, color .15s; }
+  .idx a:hover .t { color: var(--accent); }
+  .idx a:hover .arrow { transform: translateX(6px); color: var(--accent); }
+
+  /* ── 챕터 ── */
+  .opener { min-height: 58vh; display: flex; flex-direction: column; justify-content: center; }
+  .opener .cap { font-size: 13px; letter-spacing: 0.26em; color: var(--muted); font-weight: 600; }
+  .opener h2 {
+    font-size: clamp(40px, 9vw, 74px); font-weight: 800;
+    line-height: 1.08; letter-spacing: -0.02em; margin: 16px 0 18px;
+  }
+  .opener .num { font-size: 15px; color: var(--muted); }
+  .opener .lead { color: var(--muted); font-size: 15.5px; max-width: 480px; margin-top: 14px; }
+
+  article { margin-top: 54px; }
   article .tag { font-size: 11.5px; letter-spacing: 0.18em; color: var(--accent); font-weight: 600; }
-  h3 { font-size: 19px; font-weight: 700; margin: 8px 0 10px; scroll-margin-top: 80px; }
-  h3 small { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 8px; letter-spacing: 0.02em; }
+  h3 { font-size: 19px; font-weight: 700; margin: 8px 0 10px; }
+  h3 small { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 8px; }
   p { font-size: 15.5px; margin-bottom: 14px; }
-  p b { font-weight: 700; }
 
-  /* 등급 피라미드 — 모노크롬 */
   .pyramid { margin: 26px 0 10px; }
   .tier { display: flex; align-items: baseline; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--hair); }
   .tier:first-child { border-top: 1px solid var(--hair); }
@@ -66,10 +90,27 @@
   td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--hair); vertical-align: top; }
   td:first-child { font-weight: 700; white-space: nowrap; }
 
+  /* ── 챕터 하단 내비 ── */
+  .chapnav { margin-top: 80px; border-top: 1px solid var(--text); padding-top: 8px; }
+  .chapnav a {
+    display: flex; align-items: baseline; gap: 16px;
+    padding: 22px 0; border-bottom: 1px solid var(--hair);
+    text-decoration: none; color: var(--text);
+  }
+  .chapnav .dir { font-size: 12px; letter-spacing: 0.14em; color: var(--muted); min-width: 62px; }
+  .chapnav .t { font-size: 20px; font-weight: 800; transition: color .15s; }
+  .chapnav .arrow { margin-left: auto; color: var(--muted); }
+  .chapnav a:hover .t { color: var(--accent); }
+
+  .view { animation: fadein .35s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .view { animation: none; } .idx .arrow { transition: none; } }
+
   @media (max-width: 640px) {
     header { padding: 14px 16px; gap: 16px; }
-    main { padding: 44px 20px 80px; }
-    h2 { font-size: 22px; }
+    main { padding: 0 20px 70px; }
+    .hero { padding: 10vh 0 6vh; }
+    .opener { min-height: 46vh; }
     .tier { gap: 10px; }
     .tier.t4 .bar { width: 120px; }
     .tier.t3 .bar { width: 84px; }
@@ -85,18 +126,34 @@
   <a class="wordmark" href="index.html">Carte des <span>Vins</span></a>
   <nav>
     <a href="map.html">지도</a>
-    <a href="#grades">등급</a>
-    <a href="#bourgogne">부르고뉴</a>
-    <a href="#champagne">샹파뉴</a>
+    <button onclick="show('home')">목차</button>
   </nav>
+  <span class="progress" id="pg"></span>
 </header>
 
 <main>
 
-<section class="block" id="grades">
-  <div class="eyebrow">CLASSIFICATION</div>
-  <h2>등급 체계 이해하기</h2>
-  <p class="intro">부르고뉴는 밭에, 샹파뉴는 마을에 등급을 매깁니다. 이것만 이해해도 라벨의 절반이 읽힙니다.</p>
+<!-- ═══ 목차 ═══ -->
+<div id="home" class="view">
+  <div class="hero">
+    <span class="paren">(Sommaire)</span>
+    <h1>밭 하나의 차이가<br>와인을 <em>바꾼다</em></h1>
+  </div>
+  <nav class="idx">
+    <a href="#ch1" onclick="show('ch1');return false"><span class="no">(1)</span><span class="t">등급을 읽는 법</span><span class="arrow">→</span></a>
+    <a href="#ch2" onclick="show('ch2');return false"><span class="no">(2)</span><span class="t">부르고뉴 이야기</span><span class="arrow">→</span></a>
+    <a href="#ch3" onclick="show('ch3');return false"><span class="no">(3)</span><span class="t">샹파뉴 이야기</span><span class="arrow">→</span></a>
+  </nav>
+</div>
+
+<!-- ═══ 챕터 1 ═══ -->
+<div id="ch1" class="view" hidden>
+  <div class="opener">
+    <span class="cap">CHAPITRE UN</span>
+    <h2>등급을<br>읽는 법</h2>
+    <span class="num">(1)</span>
+    <p class="lead">부르고뉴는 밭에, 샹파뉴는 마을에 등급을 매깁니다. 이것만 이해해도 라벨의 절반이 읽힙니다.</p>
+  </div>
 
   <article>
     <h3>부르고뉴 <small>밭(클리마)의 피라미드</small></h3>
@@ -122,12 +179,21 @@
     </table>
     <p>라벨 구석의 작은 글자 <b>NM</b>(포도를 사서 만드는 대형 하우스)과 <b>RM</b>(자기 밭 포도로만 만드는 소규모 생산자)도 구분 포인트입니다. 요즘 전 세계 애호가들이 열광하는 "그로워 샴페인"이 바로 RM — 셀로스, 에글리-우리에, 울리스 콜랭 같은 이름들입니다.</p>
   </article>
-</section>
 
-<section class="block" id="bourgogne">
-  <div class="eyebrow">BOURGOGNE</div>
-  <h2>부르고뉴 이야기</h2>
-  <p class="intro">디종에서 리옹 방향으로 이어지는 좁고 긴 언덕. 세계에서 가장 비싼 와인들이 여기서 나옵니다. 북쪽부터 차례로.</p>
+  <nav class="chapnav">
+    <a href="#ch2" onclick="show('ch2');return false"><span class="dir">SUIVANT</span><span class="t">부르고뉴 이야기</span><span class="arrow">→</span></a>
+    <a href="#home" onclick="show('home');return false"><span class="dir">SOMMAIRE</span><span class="t">목차</span><span class="arrow">↑</span></a>
+  </nav>
+</div>
+
+<!-- ═══ 챕터 2 ═══ -->
+<div id="ch2" class="view" hidden>
+  <div class="opener">
+    <span class="cap">CHAPITRE DEUX</span>
+    <h2>부르고뉴<br>이야기</h2>
+    <span class="num">(2)</span>
+    <p class="lead">디종에서 리옹 방향으로 이어지는 좁고 긴 언덕. 세계에서 가장 비싼 와인들이 여기서 나옵니다. 북쪽부터 차례로.</p>
+  </div>
 
   <article>
     <div class="tag">CHABLIS</div>
@@ -158,12 +224,22 @@
     <h3>마코네 <small>부르고뉴의 남쪽 끝 · 햇살의 샤르도네</small></h3>
     <p>남프랑스의 기운이 느껴지는 온화한 언덕지대입니다. 로마네스크 성당들이 점점이 박힌 풍경 속에서 <b>풍만하고 너그러운 샤르도네</b>가 자랍니다. 스타는 푸이-퓌세 — 선사시대 유적지 솔뤼트레 바위 절벽 아래 원형극장처럼 펼쳐진 밭에서, 잘 익은 과일과 크림 향의 화이트가 나옵니다. 2020년 프르미에 크뤼 22곳이 새로 지정되며 위상이 올라갔습니다. 생-베랑, 비레-클레세, 마콩-빌라주는 "1/3 가격의 부르고뉴 화이트"라 불릴 만큼 실속 있습니다.</p>
   </article>
-</section>
 
-<section class="block" id="champagne">
-  <div class="eyebrow">CHAMPAGNE</div>
-  <h2>샹파뉴 이야기</h2>
-  <p class="intro">파리 동쪽 150km, 포도가 익기에 아슬아슬하게 서늘한 땅. 그 한계가 세계에서 가장 축제적인 와인을 만들었습니다.</p>
+  <nav class="chapnav">
+    <a href="#ch3" onclick="show('ch3');return false"><span class="dir">SUIVANT</span><span class="t">샹파뉴 이야기</span><span class="arrow">→</span></a>
+    <a href="#ch1" onclick="show('ch1');return false"><span class="dir">PRÉCÉDENT</span><span class="t">등급을 읽는 법</span><span class="arrow">←</span></a>
+    <a href="#home" onclick="show('home');return false"><span class="dir">SOMMAIRE</span><span class="t">목차</span><span class="arrow">↑</span></a>
+  </nav>
+</div>
+
+<!-- ═══ 챕터 3 ═══ -->
+<div id="ch3" class="view" hidden>
+  <div class="opener">
+    <span class="cap">CHAPITRE TROIS</span>
+    <h2>샹파뉴<br>이야기</h2>
+    <span class="num">(3)</span>
+    <p class="lead">파리 동쪽 150km, 포도가 익기에 아슬아슬하게 서늘한 땅. 그 한계가 세계에서 가장 축제적인 와인을 만들었습니다.</p>
+  </div>
 
   <article>
     <div class="tag">MONTAGNE DE REIMS</div>
@@ -194,8 +270,37 @@
     <h3>코트 데 바르 <small>남쪽의 반전 · 그로워들의 무대</small></h3>
     <p>샹파뉴 본체에서 남쪽으로 100km 떨어진 오브(Aube) 지역입니다. 지질학적으로는 오히려 샤블리와 같은 <b>키메리지안 토양</b>이라 한때 "여기가 진짜 샹파뉴냐"는 서러운 논쟁(1911년 폭동까지)을 겪었습니다. 지금은 완전한 반전 — 햇살을 넉넉히 받은 <b>피노 누아</b>가 개성 강한 샴페인이 되고, 자연주의 그로워 운동의 중심지가 됐습니다. 세드릭 부샤르, 마리 쿠르탱, 뵈트 에 소르베 같은 이름들이 파리의 내추럴 와인 바를 점령 중입니다. 레 리세 마을은 프랑스에서 가장 희귀한 로제 '로제 데 리세'의 고향이기도 합니다.</p>
   </article>
-</section>
+
+  <nav class="chapnav">
+    <a href="map.html" ><span class="dir">CARTE</span><span class="t">지도에서 밭 찾아보기</span><span class="arrow">→</span></a>
+    <a href="#ch2" onclick="show('ch2');return false"><span class="dir">PRÉCÉDENT</span><span class="t">부르고뉴 이야기</span><span class="arrow">←</span></a>
+    <a href="#home" onclick="show('home');return false"><span class="dir">SOMMAIRE</span><span class="t">목차</span><span class="arrow">↑</span></a>
+  </nav>
+</div>
 
 </main>
+
+<script>
+const VIEWS = ["home", "ch1", "ch2", "ch3"];
+function show(id) {
+  VIEWS.forEach(v => { document.getElementById(v).hidden = v !== id; });
+  history.replaceState(null, "", id === "home" ? "#" : "#" + id);
+  window.scrollTo({ top: 0 });
+  updatePg();
+}
+/* 해시로 직접 진입 지원 */
+const h = location.hash.replace("#", "");
+if (VIEWS.includes(h)) show(h);
+
+/* 헤더 진행률 (La Solana 스타일) */
+const pg = document.getElementById("pg");
+function updatePg() {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = max > 0 ? Math.min(100, Math.round(window.scrollY / max * 100)) : 100;
+  pg.textContent = pct + "%";
+}
+addEventListener("scroll", updatePg, { passive: true });
+updatePg();
+</script>
 </body>
 </html>
