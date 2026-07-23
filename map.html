@@ -120,6 +120,7 @@
     height: 220px; max-width: 100%; object-fit: contain; margin: 6px auto 18px; display: block;
     filter: drop-shadow(0 12px 18px rgba(45, 22, 12, 0.16));
   }
+  .wd-credit { font-family: "Cormorant", serif; font-size: 11.5px; color: var(--muted); margin: -12px 0 16px; }
   .wd-bottle { margin: 6px auto 18px; }
   .wd-bottle .bottle { width: 44px; height: 152px; }
   .wd-tag { font-family: "Cormorant", serif; text-transform: uppercase; letter-spacing: 0.2em; font-size: 13px; color: var(--wine); }
@@ -605,7 +606,8 @@ function renderWineDetail(w) {
   const terroirText = wineAppCandidates(w.appellation).map(k => TERROIR[k]).find(Boolean);
   const regionName = REGIONS[w.region] ? REGIONS[w.region].name.split(" (")[0] : "";
   const visual = w.photo
-    ? `<img class="wd-photo" src="assets/wines/${w.photo}" alt="${w.nameKo}">`
+    ? `<img class="wd-photo" src="assets/wines/${w.photo}" alt="${w.nameKo}">
+       <div class="wd-credit">Photo: Open Food Facts · CC BY-SA</div>`
     : `<div class="wd-bottle">${bottleSVG(w.type)}</div>`;
   panel.innerHTML = `
     <button class="wd-back" onclick="backFromDetail()">← 목록으로</button>
