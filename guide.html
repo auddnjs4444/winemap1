@@ -6,9 +6,9 @@
 <title>가이드 — Carte des Vins</title>
 <style>
   :root {
-    --bg: #16121a; --panel: #211b28; --panel2: #2a2233; --line: #3a3145;
-    --text: #f2edf5; --muted: #c1b6cf; --wine: #b0356b; --wine-soft: #d1789f;
-    --gold: #d9b96a;
+    --bg: #f7f3ea; --panel: #fffdf7; --panel2: #f1eadb; --line: #e2d9c6;
+    --text: #33262c; --muted: #6f5f68; --wine: #8e2a3e; --wine-soft: #a94b62;
+    --gold: #8a6a1f;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -32,6 +32,7 @@
   nav.toc a {
     font-size: 12px; color: var(--muted); text-decoration: none;
     padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--panel);
   }
   nav.toc a:hover { color: #fff; background: var(--wine); border-color: var(--wine); }
 
@@ -50,6 +51,7 @@
   .card {
     background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
     padding: 24px 26px; margin-bottom: 18px;
+    box-shadow: 0 1px 3px rgba(70, 45, 30, 0.06);
   }
 
   /* 등급 피라미드 */
@@ -82,8 +84,9 @@
     h2 { font-size: 21px; margin-top: 36px; }
     h3 { font-size: 17px; }
     .card { padding: 18px 16px; }
-    .pyr-1, .pyr-2 { min-width: 0; width: 62%; }
-    .pyr-3 { width: 80%; }
+    .pyr-1 { min-width: 0; width: 52%; }
+    .pyr-2 { min-width: 0; width: 68%; }
+    .pyr-3 { width: 84%; }
     table { font-size: 12px; }
     th, td { padding: 6px 7px; }
   }
