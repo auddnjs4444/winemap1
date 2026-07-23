@@ -225,6 +225,15 @@ L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r
 const geoLayers = { bourgogne: null, champagne: null };
 const featureLayers = [];   // { layer, sub } — 하이라이트용
 
+/* 지역 색을 어둡게 만든 버전 (호버 테두리용) */
+function darken(hex, factor) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.round(((n >> 16) & 255) * factor);
+  const g = Math.round(((n >> 8) & 255) * factor);
+  const b = Math.round((n & 255) * factor);
+  return "#" + ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0");
+}
+
 function styleFor(sub, selected) {
   const r = REGIONS[sub];
   return {
@@ -246,7 +255,7 @@ function makeGeoLayer(fc) {
       // 지도 위에서 클릭할 땐 화면을 움직이지 않음 (fly=false)
       layer.on("click", () => selectRegion(sub, false));
       layer.on("mouseover", () => {
-        layer.setStyle({ color: "#4a1228", weight: 2.5, fillOpacity: 0.6 });
+        layer.setStyle({ color: darken(REGIONS[sub].color, 0.55), weight: 2.5, fillOpacity: 0.6 });
         layer.bringToFront();
       });
       layer.on("mouseout", () => layer.setStyle(styleFor(sub, selectedRegion === sub)));
