@@ -4,642 +4,105 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vin Carte — 프랑스 와인 지도</title>
-<!-- Leaflet 지도 엔진 (오픈소스, 무료) -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<!-- Fuse.js: 오타 허용(퍼지) 검색 라이브러리 -->
-<script src="https://unpkg.com/fuse.js@7.0.0/dist/fuse.min.js"></script>
+<meta name="description" content="부르고뉴와 샹파뉴의 실제 밭 경계 지도에서 와인을 찾아보세요. INAO 공식 경계 데이터 기반의 한국어 와인 지도.">
 <style>
   :root {
-    --bg: #16121a;
-    --panel: #211b28;
-    --panel2: #2a2233;
-    --line: #3a3145;
-    --text: #efe9f2;
-    --muted: #a89bb5;
-    --wine: #b0356b;
-    --wine-soft: #d1789f;
+    --bg: #16121a; --panel: #211b28; --panel2: #2a2233; --line: #3a3145;
+    --text: #f2edf5; --muted: #c1b6cf; --wine: #b0356b; --wine-soft: #d1789f;
     --gold: #d9b96a;
-    --red: #c96a6a;
-    --white-w: #e3d48a;
-    --sparkling: #9fc7d9;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: var(--bg);
+    background:
+      radial-gradient(1100px 500px at 80% -10%, rgba(176, 53, 107, 0.18), transparent 60%),
+      radial-gradient(900px 500px at 0% 110%, rgba(217, 185, 106, 0.08), transparent 55%),
+      var(--bg);
     color: var(--text);
     font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-    min-height: 100vh;
+    min-height: 100vh; display: flex; flex-direction: column;
   }
-  header {
-    padding: 20px 28px 14px;
-    border-bottom: 1px solid var(--line);
-    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+  main {
+    flex: 1; display: flex; flex-direction: column; justify-content: center;
+    max-width: 880px; margin: 0 auto; padding: 60px 24px 40px; width: 100%;
   }
-  header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
-  header h1 span { color: var(--wine-soft); }
-  .search-wrap { flex: 1; min-width: 260px; max-width: 520px; position: relative; }
-  .search-wrap input {
-    width: 100%; padding: 10px 14px 10px 38px;
-    background: var(--panel2); border: 1px solid var(--line); border-radius: 10px;
-    color: var(--text); font-size: 14px; outline: none;
+  .eyebrow { color: var(--gold); font-size: 15px; font-weight: 700; letter-spacing: 3px; margin-bottom: 14px; }
+  h1 { font-size: clamp(40px, 7vw, 64px); font-weight: 800; line-height: 1.15; }
+  h1 span { color: var(--wine-soft); }
+  .sub {
+    color: var(--muted); font-size: clamp(15px, 2.4vw, 18px); line-height: 1.8;
+    margin: 20px 0 36px; max-width: 560px;
   }
-  .search-wrap input:focus { border-color: var(--wine-soft); }
-  .search-wrap::before {
-    content: "🔍"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-    font-size: 13px; opacity: 0.7;
-  }
-  .tabs { display: flex; gap: 8px; }
-  .tabs button {
-    padding: 9px 18px; border-radius: 10px; border: 1px solid var(--line);
-    background: var(--panel); color: var(--muted); font-size: 14px; cursor: pointer;
-    font-weight: 600;
-  }
-  .tabs button.active { background: var(--wine); border-color: var(--wine); color: #fff; }
-  .nav-guide {
-    padding: 9px 16px; border-radius: 10px; border: 1px solid var(--line);
-    color: var(--gold); text-decoration: none; font-size: 14px; font-weight: 600;
-  }
-  .nav-guide:hover { border-color: var(--gold); }
+  .stats { display: flex; gap: 28px; flex-wrap: wrap; margin-bottom: 40px; }
+  .stat .num { font-size: 28px; font-weight: 800; color: var(--gold); }
+  .stat .lbl { font-size: 13px; color: var(--muted); margin-top: 2px; }
 
-  .map-legend {
-    background: rgba(22, 18, 26, 0.88); color: var(--text);
-    border: 1px solid var(--line); border-radius: 8px;
-    font-size: 12px; padding: 6px 12px; line-height: 1.7;
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  a.card {
+    display: block; text-decoration: none; color: var(--text);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+    padding: 22px 24px; transition: border-color .15s, transform .15s;
   }
-  .legend-swatch { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  a.card:hover { border-color: var(--wine-soft); transform: translateY(-3px); }
+  a.card .icon { font-size: 26px; }
+  a.card .title { font-size: 17px; font-weight: 700; margin: 10px 0 6px; }
+  a.card .desc { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+  a.card .go { display: inline-block; margin-top: 12px; font-size: 13px; color: var(--gold); font-weight: 600; }
 
-  main { display: grid; grid-template-columns: minmax(340px, 1fr) minmax(320px, 480px); }
-  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
-
-  .map-area { display: flex; flex-direction: column; }
-  .map-title { font-size: 14px; color: var(--muted); padding: 10px 16px; }
-  #map {
-    flex: 1; min-height: 520px; height: calc(100vh - 130px);
-    border-top: 1px solid var(--line);
+  footer {
+    padding: 18px 24px 26px; text-align: center;
+    color: var(--muted); font-size: 12px; line-height: 1.8;
   }
-  @media (max-width: 860px) { #map { height: 60vh; min-height: 380px; } }
-
-  /* Leaflet 요소를 다크 테마에 맞게 손질 */
-  .leaflet-container { background: #1d2530; font: inherit; }
-  .leaflet-container path.leaflet-interactive:focus { outline: none; }
-  .region-tooltip {
-    background: rgba(22, 18, 26, 0.92); color: var(--text);
-    border: 1px solid var(--line); border-radius: 8px;
-    font-weight: 700; font-size: 12px; padding: 4px 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.4);
-  }
-  .region-tooltip::before { display: none; }
-
-  .side {
-    border-left: 1px solid var(--line); background: var(--panel);
-    padding: 20px; min-height: calc(100vh - 70px); overflow-y: auto;
-  }
-  @media (max-width: 860px) { .side { border-left: none; border-top: 1px solid var(--line); min-height: auto; } }
-  .side h2 { font-size: 18px; margin-bottom: 4px; }
-  .side .desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
-  .badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
-  .badge {
-    font-size: 11px; padding: 3px 10px; border-radius: 999px;
-    background: var(--panel2); border: 1px solid var(--line); color: var(--muted);
-  }
-  .count-note { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
-
-  .wine-card {
-    background: var(--panel2); border: 1px solid var(--line); border-radius: 12px;
-    padding: 12px 14px; margin-bottom: 10px; cursor: pointer;
-    transition: border-color .15s;
-  }
-  .wine-card:hover { border-color: var(--wine-soft); }
-  .wine-card .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .wine-card .name { font-size: 14px; font-weight: 700; }
-  .wine-card .vintage { font-size: 12px; color: var(--gold); white-space: nowrap; }
-  .wine-card .producer { font-size: 12px; color: var(--wine-soft); margin-top: 2px; }
-  .wine-card .meta { font-size: 12px; color: var(--muted); margin-top: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
-  .type-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
-  .t-red .type-dot { background: var(--red); }
-  .t-white .type-dot { background: var(--white-w); }
-  .t-sparkling .type-dot { background: var(--sparkling); }
-  .t-rose .type-dot { background: #e8a0b4; }
-  .wine-card .wdesc { font-size: 12px; color: var(--muted); margin-top: 6px; font-style: italic; }
-  .empty { color: var(--muted); font-size: 13px; padding: 24px 0; text-align: center; }
-
-  /* 필터 칩 */
-  .filter-bar { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-  .fgroup { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-  .flabel { font-size: 11px; color: var(--muted); width: 40px; }
-  .fchip {
-    font-size: 12px; padding: 4px 12px; border-radius: 999px;
-    border: 1px solid var(--line); background: var(--panel2); color: var(--muted); cursor: pointer;
-  }
-  .fchip.active { background: var(--wine); border-color: var(--wine); color: #fff; }
-
-  /* 검색 자동완성 */
-  .suggest {
-    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-    background: var(--panel2); border: 1px solid var(--line); border-radius: 10px;
-    z-index: 1200; overflow: hidden; display: none;
-    box-shadow: 0 6px 18px rgba(0,0,0,.45);
-  }
-  .suggest div { padding: 8px 12px; font-size: 13px; cursor: pointer; }
-  .suggest div:hover { background: var(--panel); }
-  .suggest span { color: var(--muted); font-size: 12px; }
+  footer a { color: var(--muted); }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Vin <span>Carte</span></h1>
-  <div class="tabs">
-    <button id="tab-bourgogne" class="active">부르고뉴</button>
-    <button id="tab-champagne">샹파뉴</button>
-  </div>
-  <a class="nav-guide" href="guide.html">📖 가이드</a>
-  <div class="search-wrap">
-    <input id="search" type="text" placeholder="와인, 생산자, 품종 검색… 오타도 괜찮아요" autocomplete="off">
-    <div class="suggest" id="suggest"></div>
-  </div>
-</header>
-
 <main>
-  <div class="map-area">
-    <div class="map-title" id="map-title">부르고뉴 (Bourgogne) — 밭을 클릭하면 그 아펠라시옹의 와인이 나옵니다 · 진한 색 = 그랑 크뤼</div>
-    <div id="map"></div>
+  <div class="eyebrow">VIN CARTE</div>
+  <h1>프랑스 와인,<br>지도에서 <span>찾다</span></h1>
+  <p class="sub">
+    부르고뉴의 그랑 크뤼 밭 한 뙈기부터 샹파뉴의 언덕까지 —
+    프랑스 INAO 공식 경계 데이터로 그린 실제 밭 지도 위에서 와인을 탐험하세요.
+    밭을 클릭하면 그곳의 와인이 나타납니다.
+  </p>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="stat-wines">—</div><div class="lbl">등록 와인</div></div>
+    <div class="stat"><div class="num">712</div><div class="lbl">밭 경계 (클리마 포함)</div></div>
+    <div class="stat"><div class="num">10</div><div class="lbl">세부 지역</div></div>
+    <div class="stat"><div class="num">2</div><div class="lbl">와인 산지</div></div>
   </div>
 
-  <aside class="side">
-    <div class="filter-bar">
-      <div class="fgroup" data-filter="type">
-        <span class="flabel">타입</span>
-        <button class="fchip active" data-v="all">전체</button>
-        <button class="fchip" data-v="red">레드</button>
-        <button class="fchip" data-v="white">화이트</button>
-        <button class="fchip" data-v="sparkling">스파클링</button>
-        <button class="fchip" data-v="rose">로제</button>
-      </div>
-    </div>
-    <div id="panel"></div>
-  </aside>
+  <div class="cards">
+    <a class="card" href="map.html">
+      <div class="icon">🍷</div>
+      <div class="title">부르고뉴 지도</div>
+      <div class="desc">로마네 콩티부터 샤블리까지. 아펠라시옹과 프르미에 크뤼 밭 단위로 클릭하는 지도.</div>
+      <span class="go">지도 열기 →</span>
+    </a>
+    <a class="card" href="map.html#champagne">
+      <div class="icon">🥂</div>
+      <div class="title">샹파뉴 지도</div>
+      <div class="desc">몽타뉴 드 랭스에서 코트 데 바르까지, 다섯 언덕의 샴페인을 만나보세요.</div>
+      <span class="go">지도 열기 →</span>
+    </a>
+    <a class="card" href="guide.html">
+      <div class="icon">📖</div>
+      <div class="title">가이드</div>
+      <div class="desc">등급 피라미드는 어떻게 읽는 걸까? 열 개 지역의 토양과 역사 이야기.</div>
+      <span class="go">읽으러 가기 →</span>
+    </a>
+  </div>
 </main>
 
+<footer>
+  경계 데이터: INAO (data.gouv.fr) · 지도: © OpenStreetMap © CARTO · Vin Carte
+</footer>
+
 <script>
-/* ─────────────────────────────────────────────
-   지역 정보 (lat/lng: 실제 좌표, radius: 임시 클릭 원의 반경 m)
-   2-2 단계에서 이 원들을 INAO 실제 경계 폴리곤으로 교체할 예정
-────────────────────────────────────────────── */
-const REGIONS = {
-  "chablis": {
-    map: "bourgogne", name: "샤블리 (Chablis)", lat: 47.813, lng: 3.798, radius: 6000, color: "#9db54a",
-    desc: "부르고뉴 최북단, 키메리지안 석회질 토양에서 나오는 미네랄리티 강한 샤르도네 화이트의 성지.",
-    grapes: ["샤르도네"], climate: "서늘한 대륙성", famous: "그랑 크뤼 7개 클리마"
-  },
-  "cote-de-nuits": {
-    map: "bourgogne", name: "코트 드 뉘 (Côte de Nuits)", lat: 47.177, lng: 4.955, radius: 5500, color: "#c04a6e",
-    desc: "세계 최고의 피노 누아 산지. 주브레-샹베르탱, 본 로마네 등 전설적인 그랑 크뤼 마을이 이어진다.",
-    grapes: ["피노 누아"], climate: "대륙성", famous: "로마네 콩티, 샹베르탱"
-  },
-  "cote-de-beaune": {
-    map: "bourgogne", name: "코트 드 본 (Côte de Beaune)", lat: 46.988, lng: 4.795, radius: 6000, color: "#d1789f",
-    desc: "몽라셰·뫼르소 등 세계 최정상 화이트와 볼네·포마르의 우아한 레드가 공존하는 지역.",
-    grapes: ["샤르도네", "피노 누아"], climate: "대륙성", famous: "몽라셰, 코르통-샤를마뉴"
-  },
-  "cote-chalonnaise": {
-    map: "bourgogne", name: "코트 샬로네즈 (Côte Chalonnaise)", lat: 46.840, lng: 4.720, radius: 6000, color: "#c99b4a",
-    desc: "메르퀴레, 지브리, 륄리 등 가성비 좋은 피노 누아와 샤르도네, 그리고 알리고테의 부즈롱.",
-    grapes: ["피노 누아", "샤르도네", "알리고테"], climate: "대륙성", famous: "메르퀴레, 몽타니"
-  },
-  "maconnais": {
-    map: "bourgogne", name: "마코네 (Mâconnais)", lat: 46.320, lng: 4.740, radius: 7000, color: "#6f9e5a",
-    desc: "부르고뉴 남부의 온화한 지역. 푸이-퓌세를 필두로 풍만한 스타일의 샤르도네가 주력.",
-    grapes: ["샤르도네", "가메"], climate: "온화한 대륙성", famous: "푸이-퓌세, 생-베랑"
-  },
-  "montagne-de-reims": {
-    map: "champagne", name: "몽타뉴 드 랭스 (Montagne de Reims)", lat: 49.155, lng: 4.100, radius: 7000, color: "#c04a6e",
-    desc: "피노 누아 중심의 그랑 크뤼 마을(부지, 베르즈네, 앙보네)이 모여 있는 샹파뉴의 심장.",
-    grapes: ["피노 누아", "샤르도네"], climate: "서늘한 해양성", famous: "부지, 베르즈네 그랑 크뤼"
-  },
-  "vallee-de-la-marne": {
-    map: "champagne", name: "발레 드 라 마른 (Vallée de la Marne)", lat: 49.055, lng: 3.900, radius: 7500, color: "#6f9e5a",
-    desc: "마른 강을 따라 펼쳐진 계곡. 과일 향이 풍부한 피노 뫼니에의 본거지.",
-    grapes: ["피노 뫼니에", "피노 누아"], climate: "서늘한 해양성", famous: "아이(Aÿ), 오빌레르"
-  },
-  "cote-des-blancs": {
-    map: "champagne", name: "코트 데 블랑 (Côte des Blancs)", lat: 48.965, lng: 4.020, radius: 5500, color: "#d4c25a",
-    desc: "이름 그대로 '화이트의 언덕'. 샤르도네 100% 블랑 드 블랑의 최고 산지 (르 메닐, 아비즈).",
-    grapes: ["샤르도네"], climate: "서늘한 해양성", famous: "르 메닐-쉬르-오제, 크라망"
-  },
-  "cote-de-sezanne": {
-    map: "champagne", name: "코트 드 세잔 (Côte de Sézanne)", lat: 48.720, lng: 3.720, radius: 6000, color: "#9db54a",
-    desc: "코트 데 블랑 남쪽의 연장선. 부드럽고 과일 향이 풍부한 샤르도네 스타일.",
-    grapes: ["샤르도네"], climate: "온화한 해양성", famous: "세잔"
-  },
-  "cote-des-bar": {
-    map: "champagne", name: "코트 데 바르 (Côte des Bar / Aube)", lat: 48.055, lng: 4.400, radius: 9000, color: "#c99b4a",
-    desc: "샹파뉴 남부 오브 지역. 키메리지안 토양의 피노 누아와 개성 있는 소규모 생산자(그로워)들의 무대.",
-    grapes: ["피노 누아"], climate: "대륙성 영향", famous: "레 리세, 로제 데 리세"
-  }
-};
-
-/* 지도 초기 화면 범위 */
-const MAP_VIEWS = {
-  bourgogne: { center: [47.05, 4.45], zoom: 9 },
-  champagne: { center: [48.85, 4.05], zoom: 9 }
-};
-
-let WINES = [];  // data/wines.json 에서 로드 (3단계)
-
-const TYPE_LABEL = { red: "레드", white: "화이트", sparkling: "스파클링", rose: "로제" };
-
-/* ───────── 필터 (가격은 데이터만 보관, 화면 반영 안 함) ───────── */
-const FILTERS = { type: "all" };
-function applyFilters(list) {
-  return list.filter(w => FILTERS.type === "all" || w.type === FILTERS.type);
-}
-const filtersActive = () => FILTERS.type !== "all";
-
-/* ───────── 빈티지 점수 ───────── */
-let VINTAGE_SCORES = {};
-function vintageScore(w) {
-  const m = String(w.vintage || "").match(/\d{4}/);
-  if (!m) return null;
-  const chart = REGIONS[w.region] && REGIONS[w.region].map === "champagne" ? "champagne"
-    : w.type === "red" ? "bourgogne-red"
-    : w.type === "white" ? "bourgogne-white" : null;
-  if (!chart || !VINTAGE_SCORES[chart]) return null;
-  return VINTAGE_SCORES[chart][m[0]] || null;
-}
-
-/* ───────── 퍼지 검색 (Fuse.js) ───────── */
-let fuse = null;
-function buildFuse() {
-  if (!window.Fuse) return;   // CDN 실패 시 기본 검색으로 동작
-  fuse = new Fuse(
-    WINES.map(w => ({ ...w, regionName: REGIONS[w.region] ? REGIONS[w.region].name : "" })),
-    {
-      keys: ["nameKo", "nameOrig", "producerKo", "producerOrig",
-             "appellation", "grape", "desc", "regionName"],
-      threshold: 0.34, ignoreLocation: true
-    }
-  );
-}
-
-let currentMap = "bourgogne";
-let selectedRegion = null;
-
-const panel = document.getElementById("panel");
-const searchInput = document.getElementById("search");
-
-/* ───────── Leaflet 지도 초기화 ───────── */
-const map = L.map("map", { zoomControl: true })
-  .setView(MAP_VIEWS.bourgogne.center, MAP_VIEWS.bourgogne.zoom);
-
-/* 배경 타일: CARTO Voyager (무료, 출처 표기 필수) */
-L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-  maxZoom: 19
-}).addTo(map);
-
-/* INAO 실제 경계 GeoJSON (2-2단계)
-   - bourgogne.geojson: 아펠라시옹별 실제 밭 경계 (INAO 파셀레르, 아펠라시옹 단위로 병합)
-   - champagne.geojson: AOC Champagne 지리적 영역을 5개 소지역으로 분할 */
-const geoLayers = { bourgogne: null, champagne: null };
-const featureLayers = [];   // { layer, sub } — 하이라이트용
-
-/* 지역 색을 어둡게 만든 버전 (호버 테두리용) */
-function darken(hex, factor) {
-  const n = parseInt(hex.slice(1), 16);
-  const r = Math.round(((n >> 16) & 255) * factor);
-  const g = Math.round(((n >> 8) & 255) * factor);
-  const b = Math.round((n & 255) * factor);
-  return "#" + ((r << 16) | (g << 8) | b).toString(16).padStart(6, "0");
-}
-
-/* ── 아펠라시옹 이름 정규화 (악센트 제거·소문자) ── */
-function normApp(s) {
-  return (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "")
-    .toLowerCase().replace(/['’]/g, " ").replace(/\s+/g, " ").trim();
-}
-/* 폴리곤 app 필드 → 매칭 키 목록 ("A ou B" 별칭 분리) */
-function polyKeys(app) {
-  return normApp(app).split(" ou ").map(s => s.trim());
-}
-/* 와인 아펠라시옹 → 후보 키 (원형 → 등급 표기 제거 → 접미어 정리 순서로 시도) */
-function wineAppCandidates(app) {
-  const a = normApp(app);
-  const stripped = a.replace(/\b(grand cru|1er cru|premier cru)\b/g, "").replace(/\s+/g, " ").trim();
-  const short = stripped.replace(/-villages$/, "").replace(/ (rouge|blanc)$/, "");
-  return [...new Set([a, stripped, short])].filter(Boolean);
-}
-
-/* 부르고뉴 그랑 크뤼 AOC (지도에서 진하게 표시) */
-const GRAND_CRUS = new Set([
-  "chablis grand cru", "chambertin", "chambertin-clos de beze", "chapelle-chambertin",
-  "charmes-chambertin", "griotte-chambertin", "latricieres-chambertin", "mazis-chambertin",
-  "mazoyeres-chambertin", "ruchottes-chambertin", "clos de la roche", "clos saint-denis",
-  "clos des lambrays", "clos de tart", "bonnes-mares", "musigny", "clos de vougeot",
-  "clos vougeot", "echezeaux", "grands-echezeaux", "romanee-conti", "la romanee",
-  "romanee-saint-vivant", "la tache", "richebourg", "la grande rue", "corton",
-  "corton-charlemagne", "charlemagne", "montrachet", "chevalier-montrachet",
-  "batard-montrachet", "bienvenues-batard-montrachet", "criots-batard-montrachet"
-]);
-
-let selectedApp = null;   // 선택된 아펠라시옹 (없으면 지역 단위 선택)
-
-function styleForEntry(en, selected) {
-  const base = REGIONS[en.sub].color;
-  return {
-    color: selected ? "#d9b96a" : darken(base, 0.6),
-    weight: selected ? 3 : (en.gc ? 1.4 : 1),
-    fillColor: en.gc ? darken(base, 0.55) : base,
-    fillOpacity: selected ? 0.68 : (en.gc ? 0.55 : 0.3)
-  };
-}
-function isSelectedEntry(en) {
-  return selectedApp ? en.app === selectedApp : (!selectedApp && en.sub === selectedRegion && !searchInput.value.trim());
-}
-function refreshHighlight() {
-  featureLayers.forEach(en => en.layer.setStyle(styleForEntry(en, isSelectedEntry(en))));
-}
-function highlightRegion(id) {   // 지역 단위 선택 상태로 전환
-  selectedApp = null;
-  selectedRegion = id;
-  refreshHighlight();
-}
-
-function makeGeoLayer(fc) {
-  return L.geoJSON(fc, {
-    style: f => {
-      const p = f.properties;
-      return styleForEntry({ sub: p.subregion, gc: p.app !== "Champagne" && polyKeys(p.app).some(k => GRAND_CRUS.has(k)) }, false);
-    },
-    onEachFeature: (f, layer) => {
-      const sub = f.properties.subregion;
-      const app = f.properties.app;
-      const en = {
-        layer, sub, app,
-        keys: polyKeys(app),
-        gc: app !== "Champagne" && polyKeys(app).some(k => GRAND_CRUS.has(k))
-      };
-      const label = app === "Champagne"
-        ? REGIONS[sub].name.split(" (")[0]
-        : app + (en.gc ? " ★" : "");
-      layer.bindTooltip(label, { sticky: true, className: "region-tooltip" });
-      // 지도 클릭: 샹파뉴는 소지역 단위, 부르고뉴는 아펠라시옹 단위
-      layer.on("click", () => {
-        if (app === "Champagne") selectRegion(sub, false);
-        else selectAppellation(en);
-      });
-      layer.on("mouseover", () => {
-        layer.setStyle({ weight: 2.5, fillOpacity: 0.68 });
-        layer.bringToFront();
-      });
-      layer.on("mouseout", () => layer.setStyle(styleForEntry(en, isSelectedEntry(en))));
-      featureLayers.push(en);
-    }
-  });
-}
-
-/* 아펠라시옹 키 → 폴리곤 entry 색인 (부르고뉴만) */
-const appIndex = new Map();
-
-Promise.all([
-  fetch("data/bourgogne.geojson").then(r => r.json()),
-  fetch("data/champagne.geojson").then(r => r.json()),
-  fetch("data/wines.json").then(r => r.json()),
-  fetch("data/vintages.json").then(r => r.json())
-]).then(([b, c, wines, vintages]) => {
-  geoLayers.bourgogne = makeGeoLayer(b);
-  geoLayers.champagne = makeGeoLayer(c);
-  WINES = wines;
-  VINTAGE_SCORES = vintages;
-  featureLayers.forEach(en => {
-    if (en.app !== "Champagne")
-      en.keys.forEach(k => { if (!appIndex.has(k)) appIndex.set(k, en); });
-  });
-  WINES.forEach(w => {
-    w._appKey = wineAppCandidates(w.appellation).find(k => appIndex.has(k)) || null;
-  });
-  buildFuse();
-  showLayerFor(currentMap);
-  renderHome();
-}).catch(() => {
-  document.getElementById("map-title").textContent =
-    "데이터를 불러오지 못했습니다 — 새로고침해 주세요";
-});
-
-/* 범례 */
-const legend = L.control({ position: "bottomleft" });
-legend.onAdd = () => {
-  const d = L.DomUtil.create("div", "map-legend");
-  d.innerHTML = `<span class="legend-swatch" style="background:#5a1f35"></span>그랑 크뤼 밭 (진한 색 · ★)<br>` +
-                `<span class="legend-swatch" style="background:#c98aa5"></span>마을·지역 단위 (색 = 소지역)`;
-  return d;
-};
-legend.addTo(map);
-
-function showLayerFor(mapName) {
-  ["bourgogne", "champagne"].forEach(m => {
-    const gl = geoLayers[m];
-    if (!gl) return;
-    if (m === mapName) gl.addTo(map);
-    else map.removeLayer(gl);
-  });
-}
-
-/* ── 아펠라시옹 선택 ── */
-function selectAppellation(en) {
-  selectedRegion = en.sub;
-  selectedApp = en.app;
-  searchInput.value = "";
-  if (REGIONS[en.sub].map !== currentMap) switchMap(REGIONS[en.sub].map, false);
-  refreshHighlight();
-  renderAppellation(en);
-}
-
-function renderAppellation(en) {
-  const r = REGIONS[en.sub];
-  const wines = applyFilters(WINES.filter(w => w._appKey && en.keys.includes(w._appKey)));
-  panel.innerHTML = `
-    <h2>${en.app}${en.gc ? " ★" : ""}</h2>
-    <p class="desc">${r.name.split(" (")[0]} 지역의 아펠라시옹${en.gc ? " · 그랑 크뤼" : ""}</p>
-    <div class="badge-row">
-      <span class="badge" style="cursor:pointer" onclick="selectRegion('${en.sub}', false)">← ${r.name.split(" (")[0]} 전체 보기</span>
-    </div>
-    <div class="count-note">이 아펠라시옹 와인 ${wines.length}종${filtersActive() ? " (필터 적용됨)" : ""}</div>
-    ${wines.length ? wines.map(wineCard).join("")
-      : `<div class="empty">이 아펠라시옹에 등록된 와인이 아직 없습니다.<br>위 버튼으로 지역 전체 와인을 볼 수 있어요.</div>`}`;
-}
-
-/* ── 역방향 연결: 와인 카드 클릭 → 지도의 해당 밭으로 ── */
-panel.addEventListener("click", e => {
-  const card = e.target.closest(".wine-card[data-app]");
-  if (!card) return;
-  const region = card.dataset.region;
-  if (REGIONS[region] && REGIONS[region].map === "champagne") {
-    selectRegion(region);
-    return;
-  }
-  const key = wineAppCandidates(card.dataset.app).find(k => appIndex.has(k));
-  if (key) {
-    const en = appIndex.get(key);
-    if (REGIONS[en.sub].map !== currentMap) switchMap(REGIONS[en.sub].map, false);
-    selectAppellation(en);
-    map.flyToBounds(en.layer.getBounds(), { maxZoom: 13, duration: 0.9 });
-  } else if (REGIONS[region]) {
-    selectRegion(region);
-  }
-});
-
-/* ───────── 오른쪽 패널 렌더링 ───────── */
-function wineCard(w) {
-  const regionName = REGIONS[w.region] ? REGIONS[w.region].name.split(" (")[0] : "";
-  const producer = w.producerOrig ? `${w.producerKo} (${w.producerOrig})` : w.producerKo;
-  const score = vintageScore(w);
-  const vintageLabel = w.vintage
-    ? `${w.vintage}${score ? ` · <b>${score}점</b>` : ""}` : "";
-  return `<div class="wine-card t-${w.type}" data-app="${w.appellation}" data-region="${w.region}" title="클릭하면 지도에서 위치를 보여줘요">
-    <div class="top"><span class="name"><span class="type-dot"></span>${w.nameKo}</span><span class="vintage">${vintageLabel}</span></div>
-    <div class="producer">${producer}</div>
-    <div class="meta">
-      <span>${w.appellation}</span><span>${w.grape}</span>
-      <span>${TYPE_LABEL[w.type] || w.type}</span><span>📍 ${regionName}</span>
-    </div>
-    ${w.desc ? `<div class="wdesc">${w.desc}</div>` : ""}
-  </div>`;
-}
-
-function renderRegion(id) {
-  const r = REGIONS[id];
-  const wines = applyFilters(WINES.filter(w => w.region === id));
-  panel.innerHTML = `
-    <h2>${r.name}</h2>
-    <p class="desc">${r.desc}</p>
-    <div class="badge-row">
-      ${r.grapes.map(g => `<span class="badge">🍇 ${g}</span>`).join("")}
-      <span class="badge">🌡 ${r.climate}</span>
-      <span class="badge">⭐ ${r.famous}</span>
-    </div>
-    <div class="count-note">이 지역 와인 ${wines.length}종${filtersActive() ? " (필터 적용됨)" : ""}</div>
-    ${wines.length ? wines.map(wineCard).join("") : `<div class="empty">조건에 맞는 와인이 없습니다. 필터를 확인해보세요.</div>`}`;
-}
-
-function renderSearch(q) {
-  const query = q.trim().toLowerCase();
-  let results;
-  if (fuse && query.length >= 2) {
-    // 퍼지 검색: 오타·부분 일치 허용, 유사도 순 정렬
-    results = fuse.search(query).map(r => r.item);
-  } else {
-    results = WINES.filter(w => {
-      const regionName = REGIONS[w.region] ? REGIONS[w.region].name : "";
-      return [w.nameKo, w.nameOrig, w.producerKo, w.producerOrig,
-              w.appellation, w.grape, w.desc, regionName, TYPE_LABEL[w.type]]
-        .join(" ").toLowerCase().includes(query);
-    });
-  }
-  results = applyFilters(results);
-  panel.innerHTML = `
-    <h2>검색 결과</h2>
-    <div class="count-note">"${q}" — ${results.length}종 (부르고뉴·샹파뉴 전체)${filtersActive() ? " · 필터 적용됨" : ""}</div>
-    ${results.length ? results.map(wineCard).join("") : `<div class="empty">검색 결과가 없습니다.</div>`}`;
-}
-
-/* ───────── 검색 자동완성 ───────── */
-const suggestBox = document.getElementById("suggest");
-function updateSuggest(q) {
-  if (!fuse || q.trim().length < 2) { suggestBox.style.display = "none"; return; }
-  const top = fuse.search(q.trim()).slice(0, 6);
-  if (!top.length) { suggestBox.style.display = "none"; return; }
-  suggestBox.innerHTML = top.map(r =>
-    `<div data-name="${r.item.nameKo}">${r.item.nameKo} <span>· ${r.item.producerKo}</span></div>`).join("");
-  suggestBox.style.display = "block";
-}
-suggestBox.addEventListener("mousedown", e => {
-  const d = e.target.closest("div[data-name]");
-  if (!d) return;
-  searchInput.value = d.dataset.name;
-  suggestBox.style.display = "none";
-  highlightRegion(null);
-  selectedRegion = null;
-  renderSearch(d.dataset.name);
-});
-searchInput.addEventListener("blur", () => setTimeout(() => { suggestBox.style.display = "none"; }, 150));
-
-/* ───────── 필터 칩 동작 ───────── */
-function rerender() {
-  const q = searchInput.value.trim();
-  if (q) renderSearch(q);
-  else if (selectedRegion) renderRegion(selectedRegion);
-  else renderHome();
-}
-document.querySelectorAll(".fgroup").forEach(g => {
-  g.addEventListener("click", e => {
-    const btn = e.target.closest(".fchip");
-    if (!btn) return;
-    g.querySelectorAll(".fchip").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    FILTERS[g.dataset.filter] = btn.dataset.v;
-    rerender();
-  });
-});
-
-function renderHome() {
-  const mapName = currentMap === "bourgogne" ? "부르고뉴" : "샹파뉴";
-  const regionList = Object.entries(REGIONS).filter(([, r]) => r.map === currentMap);
-  panel.innerHTML = `
-    <h2>${mapName} 와인 지도</h2>
-    <p class="desc">부르고뉴 지도에서 밭을 클릭하면 그 아펠라시옹의 와인만, 샹파뉴에서는 소지역의 와인이 표시됩니다 (진한 색 밭 = 그랑 크뤼 ★). 와인 카드를 클릭하면 지도가 그 밭으로 날아갑니다. 상단 검색창은 전체 와인 대상이고 오타도 허용돼요. 처음이라면 상단의 📖 가이드에서 지역과 등급 이야기를 읽어보세요.</p>
-    <div class="count-note">지역 ${regionList.length}곳 · 등록 와인 ${WINES.length}종</div>
-    ${regionList.map(([id, r]) => `
-      <div class="wine-card" style="cursor:pointer" onclick="selectRegion('${id}')">
-        <div class="top"><span class="name">${r.name}</span></div>
-        <div class="meta"><span>🍇 ${r.grapes.join(", ")}</span><span>${WINES.filter(w => w.region === id).length}종</span></div>
-      </div>`).join("")}`;
-}
-
-function selectRegion(id, fly = true) {
-  selectedRegion = id;
-  searchInput.value = "";
-  const r = REGIONS[id];
-  if (r.map !== currentMap) switchMap(r.map, false);
-  highlightRegion(id);
-  if (fly) map.flyTo([r.lat, r.lng], 11, { duration: 0.8 });
-  renderRegion(id);
-}
-window.selectRegion = selectRegion;
-
-function switchMap(mapName, resetPanel = true) {
-  currentMap = mapName;
-  if (resetPanel) { selectedRegion = null; searchInput.value = ""; }
-  document.getElementById("tab-bourgogne").classList.toggle("active", mapName === "bourgogne");
-  document.getElementById("tab-champagne").classList.toggle("active", mapName === "champagne");
-  document.getElementById("map-title").textContent =
-    mapName === "bourgogne"
-      ? "부르고뉴 (Bourgogne) — 밭을 클릭하면 그 아펠라시옹의 와인이 나옵니다 · 진한 색 = 그랑 크뤼"
-      : "샹파뉴 (Champagne) — 색칠된 산지를 클릭하면 와인이 나옵니다";
-  showLayerFor(mapName);
-  if (resetPanel) {
-    highlightRegion(null);
-    map.flyTo(MAP_VIEWS[mapName].center, MAP_VIEWS[mapName].zoom, { duration: 0.8 });
-    renderHome();
-  }
-}
-document.getElementById("tab-bourgogne").addEventListener("click", () => switchMap("bourgogne"));
-document.getElementById("tab-champagne").addEventListener("click", () => switchMap("champagne"));
-
-searchInput.addEventListener("input", e => {
-  const q = e.target.value;
-  updateSuggest(q);
-  if (!q.trim()) {
-    selectedRegion ? renderRegion(selectedRegion) : renderHome();
-    return;
-  }
-  highlightRegion(null);
-  selectedRegion = null;
-  renderSearch(q);
-});
-
-renderHome();
+  fetch("data/wines.json").then(r => r.json())
+    .then(w => { document.getElementById("stat-wines").textContent = w.length; })
+    .catch(() => { document.getElementById("stat-wines").textContent = "100+"; });
 </script>
 </body>
 </html>
