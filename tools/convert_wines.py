@@ -49,7 +49,7 @@ for row in ws.iter_rows(min_row=2, values_only=True):
         "producerKo": prod_ko, "producerOrig": prod_orig,
         "region": REGION_KO_TO_ID[region_ko], "appellation": app,
         "grape": grape, "type": TYPE_KO_TO_ID[type_ko],
-        "vintage": vintage or "NV", "price": price, "desc": desc,
+        "vintage": vintage, "price": price, "desc": desc,
     })
 
 if errors:
