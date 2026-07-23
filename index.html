@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vin Carte — 프랑스 와인 지도</title>
+<!-- Leaflet 지도 엔진 (오픈소스, 무료) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root {
     --bg: #16121a;
@@ -52,27 +55,26 @@
   }
   .tabs button.active { background: var(--wine); border-color: var(--wine); color: #fff; }
 
-  main { display: grid; grid-template-columns: minmax(340px, 1fr) minmax(320px, 480px); gap: 0; }
+  main { display: grid; grid-template-columns: minmax(340px, 1fr) minmax(320px, 480px); }
   @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
 
-  .map-area { padding: 18px 10px 28px; display: flex; flex-direction: column; align-items: center; }
-  .map-title { font-size: 15px; color: var(--muted); margin-bottom: 4px; }
-  svg { width: 100%; max-width: 560px; height: auto; }
+  .map-area { display: flex; flex-direction: column; }
+  .map-title { font-size: 14px; color: var(--muted); padding: 10px 16px; }
+  #map {
+    flex: 1; min-height: 520px; height: calc(100vh - 130px);
+    border-top: 1px solid var(--line);
+  }
+  @media (max-width: 860px) { #map { height: 60vh; min-height: 380px; } }
 
-  .region {
-    cursor: pointer;
-    stroke: var(--line); stroke-width: 1.5;
-    transition: filter .15s, opacity .15s;
-    opacity: 0.88;
+  /* Leaflet 요소를 다크 테마에 맞게 손질 */
+  .leaflet-container { background: #1d2530; font: inherit; }
+  .region-tooltip {
+    background: rgba(22, 18, 26, 0.92); color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px;
+    font-weight: 700; font-size: 12px; padding: 4px 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.4);
   }
-  .region:hover { filter: brightness(1.25); opacity: 1; }
-  .region.selected { stroke: var(--gold); stroke-width: 3; filter: brightness(1.2); opacity: 1; }
-  .region-label {
-    font-size: 13px; fill: var(--text); pointer-events: none;
-    font-weight: 600; paint-order: stroke; stroke: rgba(0,0,0,.55); stroke-width: 3px;
-  }
-  .city-label { font-size: 11px; fill: var(--muted); pointer-events: none; }
-  .city-dot { fill: var(--muted); }
+  .region-tooltip::before { display: none; }
 
   .side {
     border-left: 1px solid var(--line); background: var(--panel);
@@ -121,70 +123,8 @@
 
 <main>
   <div class="map-area">
-    <div class="map-title" id="map-title">부르고뉴 (Bourgogne) — 지역을 클릭하세요</div>
-
-    <!-- 부르고뉴 지도 -->
-    <svg id="map-bourgogne" viewBox="0 0 560 640" aria-label="부르고뉴 지도">
-      <rect width="560" height="640" fill="transparent"/>
-      <!-- 강 (Saône 방향 암시) -->
-      <path d="M 470 240 C 455 340, 440 460, 455 630" stroke="#3d4a63" stroke-width="8" fill="none" opacity="0.5"/>
-      <!-- Chablis -->
-      <path class="region" data-region="chablis" fill="#7a8a3f"
-        d="M 95 55 C 130 40, 180 45, 195 75 C 210 105, 190 135, 155 140 C 115 145, 80 120, 82 90 C 83 72, 85 60, 95 55 Z"/>
-      <text class="region-label" x="138" y="98" text-anchor="middle">샤블리</text>
-      <!-- Côte de Nuits -->
-      <path class="region" data-region="cote-de-nuits" fill="#8a3a52"
-        d="M 330 150 C 355 145, 372 160, 375 185 C 380 220, 372 260, 360 285 C 348 305, 322 305, 312 285 C 300 255, 302 200, 312 172 C 317 158, 322 152, 330 150 Z"/>
-      <text class="region-label" x="340" y="230" text-anchor="middle">코트 드 뉘</text>
-      <!-- Côte de Beaune -->
-      <path class="region" data-region="cote-de-beaune" fill="#a3506b"
-        d="M 312 300 C 335 292, 358 300, 362 322 C 368 355, 355 395, 338 415 C 322 432, 296 428, 288 405 C 278 375, 285 330, 296 312 C 300 305, 305 302, 312 300 Z"/>
-      <text class="region-label" x="325" y="368" text-anchor="middle">코트 드 본</text>
-      <!-- Côte Chalonnaise -->
-      <path class="region" data-region="cote-chalonnaise" fill="#8a6a3a"
-        d="M 285 435 C 308 428, 330 438, 333 460 C 336 485, 326 512, 308 522 C 288 532, 265 522, 260 500 C 255 478, 265 448, 285 435 Z"/>
-      <text class="region-label" x="296" y="483" text-anchor="middle">코트 샬로네즈</text>
-      <!-- Mâconnais -->
-      <path class="region" data-region="maconnais" fill="#5f7a4a"
-        d="M 265 535 C 292 528, 318 540, 322 565 C 326 592, 310 618, 285 624 C 258 630, 235 615, 232 590 C 229 565, 242 542, 265 535 Z"/>
-      <text class="region-label" x="277" y="583" text-anchor="middle">마코네</text>
-      <!-- 도시 -->
-      <circle class="city-dot" cx="392" cy="140" r="4"/><text class="city-label" x="402" y="144">디종</text>
-      <circle class="city-dot" cx="372" cy="330" r="4"/><text class="city-label" x="382" y="334">본</text>
-      <circle class="city-dot" cx="330" cy="612" r="4"/><text class="city-label" x="340" y="616">마콩</text>
-      <circle class="city-dot" cx="205" cy="70" r="4"/><text class="city-label" x="215" y="74">오세르</text>
-    </svg>
-
-    <!-- 샹파뉴 지도 -->
-    <svg id="map-champagne" viewBox="0 0 560 640" style="display:none" aria-label="샹파뉴 지도">
-      <rect width="560" height="640" fill="transparent"/>
-      <!-- Marne 강 -->
-      <path d="M 60 285 C 160 265, 260 258, 380 245" stroke="#3d4a63" stroke-width="8" fill="none" opacity="0.5"/>
-      <!-- Montagne de Reims -->
-      <path class="region" data-region="montagne-de-reims" fill="#8a3a52"
-        d="M 250 130 C 300 115, 360 122, 385 155 C 405 185, 390 215, 350 225 C 305 236, 255 228, 235 198 C 220 175, 228 142, 250 130 Z"/>
-      <text class="region-label" x="312" y="180" text-anchor="middle">몽타뉴 드 랭스</text>
-      <!-- Vallée de la Marne -->
-      <path class="region" data-region="vallee-de-la-marne" fill="#5f7a4a"
-        d="M 80 250 C 150 232, 230 228, 290 240 C 320 246, 322 275, 295 285 C 230 302, 140 302, 90 285 C 65 276, 62 258, 80 250 Z"/>
-      <text class="region-label" x="190" y="272" text-anchor="middle">발레 드 라 마른</text>
-      <!-- Côte des Blancs -->
-      <path class="region" data-region="cote-des-blancs" fill="#b0a44a"
-        d="M 300 300 C 328 292, 352 305, 355 332 C 358 365, 345 400, 322 412 C 300 423, 278 410, 275 385 C 272 355, 280 315, 300 300 Z"/>
-      <text class="region-label" x="315" y="360" text-anchor="middle">코트 데 블랑</text>
-      <!-- Côte de Sézanne -->
-      <path class="region" data-region="cote-de-sezanne" fill="#7a8a3f"
-        d="M 235 430 C 262 420, 288 430, 292 455 C 296 480, 282 505, 258 510 C 232 516, 212 500, 212 476 C 212 455, 220 438, 235 430 Z"/>
-      <text class="region-label" x="252" y="472" text-anchor="middle">코트 드 세잔</text>
-      <!-- Côte des Bar -->
-      <path class="region" data-region="cote-des-bar" fill="#8a6a3a"
-        d="M 380 520 C 430 505, 490 512, 508 545 C 522 572, 505 598, 465 605 C 420 613, 375 600, 365 572 C 358 550, 362 530, 380 520 Z"/>
-      <text class="region-label" x="440" y="562" text-anchor="middle">코트 데 바르</text>
-      <!-- 도시 -->
-      <circle class="city-dot" cx="310" cy="95" r="4"/><text class="city-label" x="320" y="99">랭스</text>
-      <circle class="city-dot" cx="290" cy="265" r="4"/><text class="city-label" x="300" y="260">에페르네</text>
-      <circle class="city-dot" cx="480" cy="620" r="4"/><text class="city-label" x="428" y="624">트루아</text>
-    </svg>
+    <div class="map-title" id="map-title">부르고뉴 (Bourgogne) — 원을 클릭하면 그 지역 와인이 나옵니다 · 지도는 드래그/휠로 이동·확대</div>
+    <div id="map"></div>
   </div>
 
   <aside class="side">
@@ -193,57 +133,67 @@
 </main>
 
 <script>
+/* ─────────────────────────────────────────────
+   지역 정보 (lat/lng: 실제 좌표, radius: 임시 클릭 원의 반경 m)
+   2-2 단계에서 이 원들을 INAO 실제 경계 폴리곤으로 교체할 예정
+────────────────────────────────────────────── */
 const REGIONS = {
   "chablis": {
-    map: "bourgogne", name: "샤블리 (Chablis)",
+    map: "bourgogne", name: "샤블리 (Chablis)", lat: 47.813, lng: 3.798, radius: 6000, color: "#9db54a",
     desc: "부르고뉴 최북단, 키메리지안 석회질 토양에서 나오는 미네랄리티 강한 샤르도네 화이트의 성지.",
     grapes: ["샤르도네"], climate: "서늘한 대륙성", famous: "그랑 크뤼 7개 클리마"
   },
   "cote-de-nuits": {
-    map: "bourgogne", name: "코트 드 뉘 (Côte de Nuits)",
+    map: "bourgogne", name: "코트 드 뉘 (Côte de Nuits)", lat: 47.177, lng: 4.955, radius: 5500, color: "#c04a6e",
     desc: "세계 최고의 피노 누아 산지. 주브레-샹베르탱, 본 로마네 등 전설적인 그랑 크뤼 마을이 이어진다.",
     grapes: ["피노 누아"], climate: "대륙성", famous: "로마네 콩티, 샹베르탱"
   },
   "cote-de-beaune": {
-    map: "bourgogne", name: "코트 드 본 (Côte de Beaune)",
+    map: "bourgogne", name: "코트 드 본 (Côte de Beaune)", lat: 46.988, lng: 4.795, radius: 6000, color: "#d1789f",
     desc: "몽라셰·뫼르소 등 세계 최정상 화이트와 볼네·포마르의 우아한 레드가 공존하는 지역.",
     grapes: ["샤르도네", "피노 누아"], climate: "대륙성", famous: "몽라셰, 코르통-샤를마뉴"
   },
   "cote-chalonnaise": {
-    map: "bourgogne", name: "코트 샬로네즈 (Côte Chalonnaise)",
+    map: "bourgogne", name: "코트 샬로네즈 (Côte Chalonnaise)", lat: 46.840, lng: 4.720, radius: 6000, color: "#c99b4a",
     desc: "메르퀴레, 지브리, 륄리 등 가성비 좋은 피노 누아와 샤르도네, 그리고 알리고테의 부즈롱.",
     grapes: ["피노 누아", "샤르도네", "알리고테"], climate: "대륙성", famous: "메르퀴레, 몽타니"
   },
   "maconnais": {
-    map: "bourgogne", name: "마코네 (Mâconnais)",
+    map: "bourgogne", name: "마코네 (Mâconnais)", lat: 46.320, lng: 4.740, radius: 7000, color: "#6f9e5a",
     desc: "부르고뉴 남부의 온화한 지역. 푸이-퓌세를 필두로 풍만한 스타일의 샤르도네가 주력.",
     grapes: ["샤르도네", "가메"], climate: "온화한 대륙성", famous: "푸이-퓌세, 생-베랑"
   },
   "montagne-de-reims": {
-    map: "champagne", name: "몽타뉴 드 랭스 (Montagne de Reims)",
+    map: "champagne", name: "몽타뉴 드 랭스 (Montagne de Reims)", lat: 49.155, lng: 4.100, radius: 7000, color: "#c04a6e",
     desc: "피노 누아 중심의 그랑 크뤼 마을(부지, 베르즈네, 앙보네)이 모여 있는 샹파뉴의 심장.",
     grapes: ["피노 누아", "샤르도네"], climate: "서늘한 해양성", famous: "부지, 베르즈네 그랑 크뤼"
   },
   "vallee-de-la-marne": {
-    map: "champagne", name: "발레 드 라 마른 (Vallée de la Marne)",
+    map: "champagne", name: "발레 드 라 마른 (Vallée de la Marne)", lat: 49.055, lng: 3.900, radius: 7500, color: "#6f9e5a",
     desc: "마른 강을 따라 펼쳐진 계곡. 과일 향이 풍부한 피노 뫼니에의 본거지.",
     grapes: ["피노 뫼니에", "피노 누아"], climate: "서늘한 해양성", famous: "아이(Aÿ), 오빌레르"
   },
   "cote-des-blancs": {
-    map: "champagne", name: "코트 데 블랑 (Côte des Blancs)",
+    map: "champagne", name: "코트 데 블랑 (Côte des Blancs)", lat: 48.965, lng: 4.020, radius: 5500, color: "#d4c25a",
     desc: "이름 그대로 '화이트의 언덕'. 샤르도네 100% 블랑 드 블랑의 최고 산지 (르 메닐, 아비즈).",
     grapes: ["샤르도네"], climate: "서늘한 해양성", famous: "르 메닐-쉬르-오제, 크라망"
   },
   "cote-de-sezanne": {
-    map: "champagne", name: "코트 드 세잔 (Côte de Sézanne)",
+    map: "champagne", name: "코트 드 세잔 (Côte de Sézanne)", lat: 48.720, lng: 3.720, radius: 6000, color: "#9db54a",
     desc: "코트 데 블랑 남쪽의 연장선. 부드럽고 과일 향이 풍부한 샤르도네 스타일.",
     grapes: ["샤르도네"], climate: "온화한 해양성", famous: "세잔"
   },
   "cote-des-bar": {
-    map: "champagne", name: "코트 데 바르 (Côte des Bar / Aube)",
+    map: "champagne", name: "코트 데 바르 (Côte des Bar / Aube)", lat: 48.055, lng: 4.400, radius: 9000, color: "#c99b4a",
     desc: "샹파뉴 남부 오브 지역. 키메리지안 토양의 피노 누아와 개성 있는 소규모 생산자(그로워)들의 무대.",
     grapes: ["피노 누아"], climate: "대륙성 영향", famous: "레 리세, 로제 데 리세"
   }
+};
+
+/* 지도 초기 화면 범위 */
+const MAP_VIEWS = {
+  bourgogne: { center: [47.05, 4.45], zoom: 9 },
+  champagne: { center: [48.85, 4.05], zoom: 9 }
 };
 
 const WINES = [
@@ -308,6 +258,55 @@ let selectedRegion = null;
 const panel = document.getElementById("panel");
 const searchInput = document.getElementById("search");
 
+/* ───────── Leaflet 지도 초기화 ───────── */
+const map = L.map("map", { zoomControl: true })
+  .setView(MAP_VIEWS.bourgogne.center, MAP_VIEWS.bourgogne.zoom);
+
+/* 배경 타일: CARTO Voyager (무료, 출처 표기 필수) */
+L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  maxZoom: 19
+}).addTo(map);
+
+/* 지역별 임시 클릭 원 생성 (2-2에서 INAO 실제 경계 폴리곤으로 교체 예정) */
+const regionCircles = {};
+Object.entries(REGIONS).forEach(([id, r]) => {
+  const circle = L.circle([r.lat, r.lng], {
+    radius: r.radius,
+    color: r.color, weight: 2,
+    fillColor: r.color, fillOpacity: 0.35
+  });
+  circle.bindTooltip(r.name.split(" (")[0], {
+    permanent: true, direction: "center", className: "region-tooltip"
+  });
+  circle.on("click", () => selectRegion(id));
+  circle.on("mouseover", () => circle.setStyle({ fillOpacity: 0.55 }));
+  circle.on("mouseout", () => circle.setStyle({
+    fillOpacity: selectedRegion === id ? 0.55 : 0.35
+  }));
+  regionCircles[id] = circle;
+});
+
+function showCirclesFor(mapName) {
+  Object.entries(REGIONS).forEach(([id, r]) => {
+    if (r.map === mapName) regionCircles[id].addTo(map);
+    else map.removeLayer(regionCircles[id]);
+  });
+}
+showCirclesFor("bourgogne");
+
+function highlightCircle(id) {
+  Object.entries(regionCircles).forEach(([cid, c]) => {
+    const sel = cid === id;
+    c.setStyle({
+      weight: sel ? 4 : 2,
+      color: sel ? "#d9b96a" : REGIONS[cid].color,
+      fillOpacity: sel ? 0.55 : 0.35
+    });
+  });
+}
+
+/* ───────── 오른쪽 패널 렌더링 ───────── */
 function wineCard(w) {
   const regionName = REGIONS[w.region] ? REGIONS[w.region].name.split(" (")[0] : "";
   return `<div class="wine-card t-${w.type}">
@@ -353,7 +352,7 @@ function renderHome() {
   const regionList = Object.entries(REGIONS).filter(([, r]) => r.map === currentMap);
   panel.innerHTML = `
     <h2>${mapName} 와인 지도</h2>
-    <p class="desc">왼쪽 지도에서 지역을 클릭하면 해당 지역의 와인 목록이 표시됩니다. 상단 검색창은 지역과 무관하게 전체 와인을 검색합니다.</p>
+    <p class="desc">왼쪽 지도의 색깔 원을 클릭하면 해당 지역의 와인 목록이 표시됩니다. 지도는 드래그로 이동, 마우스 휠/버튼으로 확대·축소할 수 있습니다. 상단 검색창은 지역과 무관하게 전체 와인을 검색합니다.</p>
     <div class="count-note">지역 ${regionList.length}곳 · 등록 와인 ${WINES.length}종</div>
     ${regionList.map(([id, r]) => `
       <div class="wine-card" style="cursor:pointer" onclick="selectRegion('${id}')">
@@ -365,28 +364,28 @@ function renderHome() {
 function selectRegion(id) {
   selectedRegion = id;
   searchInput.value = "";
-  document.querySelectorAll(".region").forEach(el =>
-    el.classList.toggle("selected", el.dataset.region === id));
+  const r = REGIONS[id];
+  if (r.map !== currentMap) switchMap(r.map, false);
+  highlightCircle(id);
+  map.flyTo([r.lat, r.lng], 11, { duration: 0.8 });
   renderRegion(id);
 }
 window.selectRegion = selectRegion;
 
-document.querySelectorAll(".region").forEach(el => {
-  el.addEventListener("click", () => selectRegion(el.dataset.region));
-});
-
-function switchMap(map) {
-  currentMap = map;
-  selectedRegion = null;
-  searchInput.value = "";
-  document.getElementById("map-bourgogne").style.display = map === "bourgogne" ? "" : "none";
-  document.getElementById("map-champagne").style.display = map === "champagne" ? "" : "none";
-  document.getElementById("tab-bourgogne").classList.toggle("active", map === "bourgogne");
-  document.getElementById("tab-champagne").classList.toggle("active", map === "champagne");
+function switchMap(mapName, resetPanel = true) {
+  currentMap = mapName;
+  if (resetPanel) { selectedRegion = null; searchInput.value = ""; }
+  document.getElementById("tab-bourgogne").classList.toggle("active", mapName === "bourgogne");
+  document.getElementById("tab-champagne").classList.toggle("active", mapName === "champagne");
   document.getElementById("map-title").textContent =
-    map === "bourgogne" ? "부르고뉴 (Bourgogne) — 지역을 클릭하세요" : "샹파뉴 (Champagne) — 지역을 클릭하세요";
-  document.querySelectorAll(".region").forEach(el => el.classList.remove("selected"));
-  renderHome();
+    (mapName === "bourgogne" ? "부르고뉴 (Bourgogne)" : "샹파뉴 (Champagne)") +
+    " — 원을 클릭하면 그 지역 와인이 나옵니다 · 지도는 드래그/휠로 이동·확대";
+  showCirclesFor(mapName);
+  if (resetPanel) {
+    highlightCircle(null);
+    map.flyTo(MAP_VIEWS[mapName].center, MAP_VIEWS[mapName].zoom, { duration: 0.8 });
+    renderHome();
+  }
 }
 document.getElementById("tab-bourgogne").addEventListener("click", () => switchMap("bourgogne"));
 document.getElementById("tab-champagne").addEventListener("click", () => switchMap("champagne"));
@@ -397,7 +396,7 @@ searchInput.addEventListener("input", e => {
     selectedRegion ? renderRegion(selectedRegion) : renderHome();
     return;
   }
-  document.querySelectorAll(".region").forEach(el => el.classList.remove("selected"));
+  highlightCircle(null);
   selectedRegion = null;
   renderSearch(q);
 });
