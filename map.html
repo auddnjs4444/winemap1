@@ -109,6 +109,35 @@
     font-size: 13.5px; line-height: 1.9; color: rgba(23, 18, 21, 0.82);
     border-left: 2px solid var(--wine); padding-left: 12px; margin-bottom: 16px;
   }
+  /* 와인 상세 화면 */
+  .wd { text-align: center; }
+  .wd-back {
+    background: none; border: none; color: var(--muted); font-size: 13px;
+    cursor: pointer; font-family: inherit; padding: 0 0 14px;
+  }
+  .wd-back:hover { color: var(--wine); }
+  .wd-photo {
+    height: 220px; max-width: 100%; object-fit: contain; margin: 6px auto 18px; display: block;
+    filter: drop-shadow(0 12px 18px rgba(45, 22, 12, 0.16));
+  }
+  .wd-bottle { margin: 6px auto 18px; }
+  .wd-bottle .bottle { width: 44px; height: 152px; }
+  .wd-tag { font-family: "Cormorant", serif; text-transform: uppercase; letter-spacing: 0.2em; font-size: 13px; color: var(--wine); }
+  .wd-name { font-size: 22px; font-weight: 600; margin: 8px 0 2px; }
+  .wd-orig { font-family: "Cormorant", serif; font-size: 16px; color: var(--muted); }
+  .wd-producer { font-size: 13.5px; color: var(--muted); margin: 10px 0 18px; }
+  .wd-meta { border-top: 1px solid var(--text); margin-bottom: 16px; text-align: left; }
+  .wd-meta div { display: flex; justify-content: space-between; padding: 9px 2px; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .wd-meta span { color: var(--muted); }
+  .wd-desc { font-size: 13.5px; color: rgba(23, 18, 21, 0.8); font-style: italic; margin-bottom: 16px; }
+  .wd-sec { font-family: "Cormorant", serif; text-transform: uppercase; letter-spacing: 0.18em; font-size: 12px; color: var(--muted); margin: 14px 0 8px; text-align: left; }
+  .wd .terroir { text-align: left; }
+  .wd-map {
+    width: 100%; padding: 12px; background: var(--wine); color: #fff; border: none;
+    cursor: pointer; font-family: inherit; font-size: 14px; letter-spacing: 0.05em; margin-top: 6px;
+  }
+  .wd-map:hover { background: #7a2435; }
+
   .wc-row { display: flex; gap: 14px; }
   .wc-visual { flex: none; width: 34px; display: flex; justify-content: center; align-items: flex-start; padding-top: 2px; }
   .wc-body { flex: 1; min-width: 0; }
@@ -527,6 +556,7 @@ function selectAppellation(en, denomNote) {
 function renderAppellation(en, denomNote) {
   const r = REGIONS[en.sub];
   const wines = applyFilters(WINES.filter(w => w._appKey && en.keys.includes(w._appKey)));
+  LIST_CACHE = wines;
   const climat = denomNote ? denomNote.replace(/premier cru/i, "1er Cru") : null;
   const terroirText = en.keys.map(k => TERROIR[k]).find(Boolean);
   panel.innerHTML = `
@@ -542,16 +572,21 @@ function renderAppellation(en, denomNote) {
       : `<div class="empty">이 아펠라시옹에 등록된 와인이 아직 없습니다.<br>위 버튼으로 지역 전체 와인을 볼 수 있어요.</div>`}`;
 }
 
-/* ── 역방향 연결: 와인 카드 클릭 → 지도의 해당 밭으로 ── */
+/* ── 와인 카드 클릭 → 상세 화면 ── */
 panel.addEventListener("click", e => {
-  const card = e.target.closest(".wine-card[data-app]");
+  const card = e.target.closest(".wine-card[data-i]");
   if (!card) return;
-  const region = card.dataset.region;
+  const w = LIST_CACHE[+card.dataset.i];
+  if (w) renderWineDetail(w);
+});
+
+/* 지도에서 해당 밭으로 이동 */
+function flyToWine(app, region) {
   if (REGIONS[region] && REGIONS[region].map === "champagne") {
     selectRegion(region);
     return;
   }
-  const key = wineAppCandidates(card.dataset.app).find(k => appIndex.has(k));
+  const key = wineAppCandidates(app).find(k => appIndex.has(k));
   if (key) {
     const en = appIndex.get(key);
     if (REGIONS[en.sub].map !== currentMap) switchMap(REGIONS[en.sub].map, false);
@@ -560,7 +595,39 @@ panel.addEventListener("click", e => {
   } else if (REGIONS[region]) {
     selectRegion(region);
   }
-});
+}
+
+/* ── 와인 상세 화면 ── */
+let DETAIL_W = null;
+function renderWineDetail(w) {
+  DETAIL_W = w;
+  const score = vintageScore(w);
+  const terroirText = wineAppCandidates(w.appellation).map(k => TERROIR[k]).find(Boolean);
+  const regionName = REGIONS[w.region] ? REGIONS[w.region].name.split(" (")[0] : "";
+  const visual = w.photo
+    ? `<img class="wd-photo" src="assets/wines/${w.photo}" alt="${w.nameKo}">`
+    : `<div class="wd-bottle">${bottleSVG(w.type)}</div>`;
+  panel.innerHTML = `
+    <button class="wd-back" onclick="backFromDetail()">← 목록으로</button>
+    <div class="wd">
+      ${visual}
+      <div class="wd-tag">${w.appellation}</div>
+      <h2 class="wd-name">${w.nameKo}</h2>
+      ${w.nameOrig ? `<div class="wd-orig">${w.nameOrig}</div>` : ""}
+      <div class="wd-producer">${w.producerKo}${w.producerOrig ? ` · ${w.producerOrig}` : ""}</div>
+      <div class="wd-meta">
+        <div><span>타입</span><b>${TYPE_LABEL[w.type] || w.type}</b></div>
+        <div><span>품종</span><b>${w.grape}</b></div>
+        ${w.vintage ? `<div><span>빈티지</span><b>${w.vintage}${score ? ` · ${score}점` : ""}</b></div>` : ""}
+        <div><span>지역</span><b>${regionName}</b></div>
+      </div>
+      ${w.desc ? `<p class="wd-desc">"${w.desc}"</p>` : ""}
+      ${terroirText ? `<div class="wd-sec">Terroir</div><p class="terroir">${terroirText}</p>` : ""}
+      <button class="wd-map" onclick="flyToWine(DETAIL_W.appellation, DETAIL_W.region)">지도에서 밭 보기</button>
+    </div>`;
+  document.querySelector(".side").scrollTop = 0;
+}
+window.backFromDetail = () => { DETAIL_W = null; rerender(); };
 
 /* ───────── 오른쪽 패널 렌더링 ───────── */
 /* 타입별 미니멀 보틀 실루엣 (스틸=부르고뉴 병, 스파클링=샴페인 병) */
@@ -571,7 +638,9 @@ function bottleSVG(type) {
   return `<svg class="bottle" viewBox="0 0 24 78" aria-hidden="true"><path d="M12 1c1.2 0 2.2.8 2.2 2.2v14c0 4.5 5 5.5 5 12v42c0 3.5-2 6-5.5 6h-3.4c-3.5 0-5.5-2.5-5.5-6v-42c0-6.5 5-7.5 5-12v-14C9.8 1.8 10.8 1 12 1Z" fill="${c}"/></svg>`;
 }
 
-function wineCard(w) {
+let LIST_CACHE = [];   // 현재 패널에 표시 중인 와인 목록 (상세 화면 진입용)
+
+function wineCard(w, i) {
   const regionName = REGIONS[w.region] ? REGIONS[w.region].name.split(" (")[0] : "";
   const producer = w.producerOrig ? `${w.producerKo} (${w.producerOrig})` : w.producerKo;
   const score = vintageScore(w);
@@ -580,7 +649,7 @@ function wineCard(w) {
   const visual = w.photo
     ? `<img class="bottle-photo" src="assets/wines/${w.photo}" alt="" loading="lazy">`
     : bottleSVG(w.type);
-  return `<div class="wine-card wc-row t-${w.type}" data-app="${w.appellation}" data-region="${w.region}" title="클릭하면 지도에서 위치를 보여줘요">
+  return `<div class="wine-card wc-row t-${w.type}" data-i="${i}" data-app="${w.appellation}" data-region="${w.region}" title="클릭하면 상세 정보를 보여줘요">
     <div class="wc-visual">${visual}</div>
     <div class="wc-body">
       <div class="top"><span class="name">${w.nameKo}</span><span class="vintage">${vintageLabel}</span></div>
@@ -597,6 +666,7 @@ function wineCard(w) {
 function renderRegion(id) {
   const r = REGIONS[id];
   const wines = applyFilters(WINES.filter(w => w.region === id));
+  LIST_CACHE = wines;
   panel.innerHTML = `
     <h2>${r.name}</h2>
     <p class="desc">${r.desc}</p>
@@ -624,6 +694,7 @@ function renderSearch(q) {
     });
   }
   results = applyFilters(results);
+  LIST_CACHE = results;
   panel.innerHTML = `
     <h2>검색 결과</h2>
     <div class="count-note">"${q}" — ${results.length}종 (부르고뉴·샹파뉴 전체)${filtersActive() ? " · 필터 적용됨" : ""}</div>
