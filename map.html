@@ -6,29 +6,33 @@
 <title>지도 — Carte des Vins</title>
 <!-- Leaflet 지도 엔진 (오픈소스, 무료) -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,400&family=Noto+Serif+KR:wght@200;300;400;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <!-- Fuse.js: 오타 허용(퍼지) 검색 라이브러리 -->
 <script src="https://unpkg.com/fuse.js@7.0.0/dist/fuse.min.js"></script>
 <style>
   :root {
-    --bg: #16121a;
-    --panel: #211b28;
-    --panel2: #2a2233;
-    --line: #3a3145;
-    --text: #f2edf5;
-    --muted: #c1b6cf;
-    --wine: #b0356b;
-    --wine-soft: #d1789f;
-    --gold: #d9b96a;
-    --red: #c96a6a;
-    --white-w: #e3d48a;
-    --sparkling: #9fc7d9;
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --panel2: #f7f5f1;
+    --line: #e9e6e2;
+    --text: #171215;
+    --muted: #8a8286;
+    --wine: #8e2a3e;
+    --wine-soft: #8e2a3e;
+    --gold: #8e2a3e;
+    --red: #b5453f;
+    --white-w: #c2a53c;
+    --sparkling: #5f8ba0;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    font-family: "Noto Serif KR", "Cormorant", serif;
+    font-weight: 300; -webkit-font-smoothing: antialiased;
     min-height: 100vh;
   }
   header {
@@ -36,35 +40,38 @@
     border-bottom: 1px solid var(--line);
     display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
   }
-  header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
+  header h1 { font-family: "Cormorant", serif; font-style: italic; font-size: 21px; font-weight: 400; }
   header h1 span { color: var(--wine-soft); }
   .search-wrap { flex: 1; min-width: 260px; max-width: 520px; position: relative; }
   .search-wrap input {
-    width: 100%; padding: 10px 14px 10px 38px;
-    background: var(--panel2); border: 1px solid var(--line); border-radius: 10px;
-    color: var(--text); font-size: 14px; outline: none;
+    width: 100%; padding: 10px 14px 10px 34px;
+    background: transparent; border: none; border-bottom: 1px solid var(--line);
+    color: var(--text); font-size: 14px; outline: none; font-family: inherit;
   }
-  .search-wrap input:focus { border-color: var(--wine-soft); }
+  .search-wrap input:focus { border-bottom-color: var(--wine); }
   .search-wrap::before {
     content: "🔍"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
     font-size: 13px; opacity: 0.7;
   }
   .tabs { display: flex; gap: 8px; }
   .tabs button {
-    padding: 9px 18px; border-radius: 10px; border: 1px solid var(--line);
-    background: var(--panel); color: var(--muted); font-size: 14px; cursor: pointer;
-    font-weight: 600;
+    padding: 6px 2px; border: none; border-bottom: 1px solid transparent;
+    background: none; color: var(--muted); font-size: 16px; cursor: pointer;
+    font-family: "Cormorant", serif; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 400;
+    transition: color .2s;
   }
-  .tabs button.active { background: var(--wine); border-color: var(--wine); color: #fff; }
+  .tabs button:hover { color: var(--text); }
+  .tabs button.active { color: var(--text); border-bottom-color: var(--wine); }
   .nav-guide {
-    padding: 9px 16px; border-radius: 10px; border: 1px solid var(--line);
-    color: var(--gold); text-decoration: none; font-size: 14px; font-weight: 600;
+    padding: 6px 2px; color: var(--muted); text-decoration: none; font-size: 16px;
+    font-family: "Cormorant", serif; text-transform: uppercase; letter-spacing: 0.08em;
+    transition: color .2s;
   }
-  .nav-guide:hover { border-color: var(--gold); }
+  .nav-guide:hover { color: var(--wine); }
 
   .map-legend {
-    background: rgba(22, 18, 26, 0.88); color: var(--text);
-    border: 1px solid var(--line); border-radius: 8px;
+    background: rgba(255, 255, 255, 0.92); color: var(--text);
+    border: 1px solid var(--line); border-radius: 0;
     font-size: 13px; padding: 6px 12px; line-height: 1.7;
   }
   .legend-swatch { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
@@ -80,14 +87,14 @@
   }
   @media (max-width: 860px) { #map { height: 60vh; min-height: 380px; } }
 
-  /* Leaflet 요소를 다크 테마에 맞게 손질 */
-  .leaflet-container { background: #1d2530; font: inherit; }
+  /* Leaflet 요소 손질 */
+  .leaflet-container { background: #eee9e1; font: inherit; }
   .leaflet-container path.leaflet-interactive:focus { outline: none; }
   .region-tooltip {
-    background: rgba(22, 18, 26, 0.92); color: var(--text);
-    border: 1px solid var(--line); border-radius: 8px;
-    font-weight: 700; font-size: 13px; padding: 4px 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.4);
+    background: rgba(255, 255, 255, 0.95); color: var(--text);
+    border: 1px solid var(--line); border-radius: 0;
+    font-weight: 600; font-size: 13px; padding: 4px 10px;
+    box-shadow: 0 2px 10px rgba(50, 25, 15, 0.12);
   }
   .region-tooltip::before { display: none; }
 
@@ -100,8 +107,8 @@
   .side .desc { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 14px; }
   .badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
   .badge {
-    font-size: 12px; padding: 3px 10px; border-radius: 999px;
-    background: var(--panel2); border: 1px solid var(--line); color: var(--muted);
+    font-size: 12px; padding: 3px 10px; border-radius: 0;
+    background: transparent; border: 1px solid var(--line); color: var(--muted);
   }
   .count-note { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
   .gi { display: inline-block; }
@@ -109,13 +116,14 @@
   .gi-green { filter: grayscale(1) sepia(1) saturate(4) hue-rotate(35deg) brightness(1.2); }
 
   .wine-card {
-    background: var(--panel2); border: 1px solid var(--line); border-radius: 12px;
-    padding: 12px 14px; margin-bottom: 10px; cursor: pointer;
-    transition: border-color .15s;
+    background: transparent; border: none; border-bottom: 1px solid var(--line);
+    border-radius: 0; padding: 16px 2px; margin-bottom: 0; cursor: pointer;
+    transition: background .15s;
   }
-  .wine-card:hover { border-color: var(--wine-soft); }
+  .wine-card:first-of-type { border-top: 1px solid var(--line); }
+  .wine-card:hover { background: var(--panel2); }
   .wine-card .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .wine-card .name { font-size: 15px; font-weight: 700; }
+  .wine-card .name { font-size: 15px; font-weight: 600; }
   .wine-card .vintage { font-size: 13px; color: var(--gold); white-space: nowrap; }
   .wine-card .producer { font-size: 13px; color: var(--wine-soft); margin-top: 2px; }
   .wine-card .meta { font-size: 13px; color: var(--muted); margin-top: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
@@ -123,7 +131,7 @@
   .t-red .type-dot { background: var(--red); }
   .t-white .type-dot { background: var(--white-w); }
   .t-sparkling .type-dot { background: var(--sparkling); }
-  .t-rose .type-dot { background: #e8a0b4; }
+  .t-rose .type-dot { background: #d1748e; }
   .wine-card .wdesc { font-size: 13px; color: var(--muted); margin-top: 6px; font-style: italic; }
   .empty { color: var(--muted); font-size: 13px; padding: 24px 0; text-align: center; }
 
@@ -132,20 +140,21 @@
   .fgroup { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
   .flabel { font-size: 12px; color: var(--muted); width: 40px; }
   .fchip {
-    font-size: 13px; padding: 4px 12px; border-radius: 999px;
-    border: 1px solid var(--line); background: var(--panel2); color: var(--muted); cursor: pointer;
+    font-size: 13px; padding: 4px 12px; border-radius: 0;
+    border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer;
+    font-family: inherit;
   }
   .fchip.active { background: var(--wine); border-color: var(--wine); color: #fff; }
 
   /* 검색 자동완성 */
   .suggest {
     position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-    background: var(--panel2); border: 1px solid var(--line); border-radius: 10px;
+    background: #fff; border: 1px solid var(--line); border-radius: 0;
     z-index: 1200; overflow: hidden; display: none;
-    box-shadow: 0 6px 18px rgba(0,0,0,.45);
+    box-shadow: 0 8px 22px rgba(50, 25, 15, 0.1);
   }
   .suggest div { padding: 8px 12px; font-size: 14px; cursor: pointer; }
-  .suggest div:hover { background: var(--panel); }
+  .suggest div:hover { background: var(--panel2); }
   .suggest span { color: var(--muted); font-size: 13px; }
 
   /* ── 모바일 최적화 ── */
@@ -169,10 +178,10 @@
 <header>
   <a href="index.html" style="text-decoration:none;color:inherit"><h1>Carte des <span>Vins</span></h1></a>
   <div class="tabs">
-    <button id="tab-bourgogne" class="active">부르고뉴</button>
-    <button id="tab-champagne">샹파뉴</button>
+    <button id="tab-bourgogne" class="active">Bourgogne</button>
+    <button id="tab-champagne">Champagne</button>
   </div>
-  <a class="nav-guide" href="guide.html">📖 가이드</a>
+  <a class="nav-guide" href="guide.html">Le Guide</a>
   <div class="search-wrap">
     <input id="search" type="text" placeholder="와인, 생산자, 품종 검색… 오타도 괜찮아요" autocomplete="off">
     <div class="suggest" id="suggest"></div>
@@ -379,7 +388,7 @@ function styleForEntry(en, selected) {
     };
   }
   return {
-    color: selected ? "#d9b96a" : darken(base, 0.6),
+    color: selected ? "#8e2a3e" : darken(base, 0.6),
     weight: selected ? 3 : 1.2,
     fillColor: base,
     fillOpacity: selected ? 0.6 : 0.32

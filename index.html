@@ -5,57 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carte des Vins — 프랑스 와인 지도</title>
 <meta name="description" content="부르고뉴와 샹파뉴의 실제 밭 경계 지도에서 와인을 찾아보세요.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,400&family=Noto+Serif+KR:wght@200;300;400&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-    background: #131016;
-  }
+  body { background: #fff; font-family: "Noto Serif KR", "Cormorant", serif; font-weight: 300; }
   .hero { position: relative; }
-  .photo {
-    display: block; width: 100%; height: auto;
-    filter: brightness(1.12) contrast(1.02);
-  }
+  .photo { display: block; width: 100%; height: auto; filter: brightness(1.1) contrast(1.02); }
   .overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(to bottom,
-      #13101680 0%, #1310162e 30%, #13101600 55%, #13101699 100%);
+    background: linear-gradient(to bottom, #00000052 0%, #00000018 40%, #00000000 60%, #00000060 100%);
   }
   main {
     position: absolute; top: 0; left: 0; right: 0; height: 100vh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; padding: 24px; z-index: 2;
+    gap: 26px; text-align: center; padding: 24px; z-index: 2; color: #fff;
   }
+  .paren { font-family: "Cormorant", serif; font-weight: 300; font-size: 17px; text-shadow: 0 1px 10px rgba(0,0,0,.4); }
   h1 {
-    color: #f6f2f8; font-size: clamp(26px, 5.2vw, 48px); font-weight: 800;
-    letter-spacing: 0.22em; text-indent: 0.22em; line-height: 1.2;
-    text-shadow: 0 2px 20px #00000066;
+    font-family: "Cormorant", serif; font-weight: 300; text-transform: uppercase;
+    font-size: clamp(52px, 11vw, 120px); line-height: 0.94; letter-spacing: 0.01em;
+    text-shadow: 0 2px 26px rgba(0,0,0,.35);
   }
-  h1 span { color: #d1789f; }
-  .line { width: 44px; height: 1px; background: #d9b96a; margin: 30px auto; }
-  nav { display: flex; gap: 34px; justify-content: center; flex-wrap: wrap; }
-  nav a {
-    color: #ecca79; text-decoration: none; font-size: 15px;
-    letter-spacing: 0.2em; padding-bottom: 5px;
-    border-bottom: 1px solid #ecca7966;
-    text-shadow: 0 1px 10px #00000080;
-    transition: border-color .15s, color .15s;
+  .ko { font-family: "Noto Serif KR", serif; font-weight: 200; font-size: clamp(15px, 2.4vw, 19px); text-shadow: 0 1px 10px rgba(0,0,0,.45); }
+  nav { display: flex; gap: clamp(28px, 6vw, 64px); margin-top: 26px; }
+  nav a { text-decoration: none; color: #fff; display: block; }
+  nav .fr {
+    display: block; font-family: "Cormorant", serif; font-weight: 300; text-transform: uppercase;
+    font-size: clamp(18px, 3vw, 26px); letter-spacing: 0.06em;
+    text-shadow: 0 1px 12px rgba(0,0,0,.45);
+    transition: letter-spacing .3s;
   }
-  nav a:hover { border-color: #ecca79; color: #f7e5b5; }
+  nav .sub {
+    display: block; margin-top: 6px; font-size: 12px; font-weight: 300; color: #ffffffc9;
+    border-top: 1px solid #ffffff59; padding-top: 7px;
+    transition: border-color .3s;
+  }
+  nav a:hover .fr { letter-spacing: 0.12em; }
+  nav a:hover .sub { border-color: #fff; color: #fff; }
   .scroll-hint {
-    position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
-    color: #ffffffaa; font-size: 20px; z-index: 2;
-    animation: bob 2s ease-in-out infinite;
+    position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 2;
+    animation: bob 2.4s ease-in-out infinite;
   }
-  @keyframes bob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 8px); } }
+  .scroll-hint .paren { font-size: 15px; color: #ffffffd9; }
+  @keyframes bob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 7px); } }
+  @media (prefers-reduced-motion: reduce) { .scroll-hint { animation: none; } }
   footer {
-    padding: 20px 24px 26px; text-align: center;
-    color: #ffffff59; font-size: 12px; letter-spacing: 0.08em; line-height: 1.9;
+    padding: 26px 24px 32px; text-align: center;
+    font-family: "Cormorant", serif; font-size: 14px; letter-spacing: 0.1em;
+    color: rgba(17,17,17,.5);
   }
   @media (max-width: 480px) {
-    nav { gap: 20px; }
-    nav a { font-size: 14px; letter-spacing: 0.14em; }
-    .line { margin: 24px auto; }
+    nav { flex-direction: column; gap: 20px; margin-top: 14px; }
+    nav .sub { display: inline-block; margin-left: 10px; margin-top: 0; border-top: none; padding-top: 0; }
   }
 </style>
 </head>
@@ -64,16 +67,17 @@
     <img class="photo" src="assets/vineyard.jpg" alt="로마네 콩티 밭의 십자가, 본-로마네">
     <div class="overlay"></div>
     <main>
-      <h1>CARTE DES <span>VINS</span></h1>
-      <div class="line"></div>
+      <span class="paren">(La Carte des Vins)</span>
+      <h1>Carte<br>des Vins</h1>
+      <p class="ko">프랑스 와인, 지도에서 찾다</p>
       <nav>
-        <a href="map.html">부르고뉴</a>
-        <a href="map.html#champagne">샹파뉴</a>
-        <a href="guide.html">가이드</a>
+        <a href="map.html"><span class="fr">Bourgogne</span><span class="sub">부르고뉴</span></a>
+        <a href="map.html#champagne"><span class="fr">Champagne</span><span class="sub">샹파뉴</span></a>
+        <a href="guide.html"><span class="fr">Le Guide</span><span class="sub">가이드</span></a>
       </nav>
-      <div class="scroll-hint">↓</div>
     </main>
+    <div class="scroll-hint"><span class="paren">(Scroll)</span></div>
   </div>
-  <footer>Romanée-Conti, Vosne-Romanée · 경계 데이터 INAO · 지도 © OpenStreetMap © CARTO</footer>
+  <footer>ROMANÉE-CONTI · VOSNE-ROMANÉE — DONNÉES INAO · © OPENSTREETMAP © CARTO</footer>
 </body>
 </html>
