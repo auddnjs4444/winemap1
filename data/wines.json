@@ -531,5 +531,18 @@
   "vintage": "NV",
   "price": "7만원대",
   "desc": ""
+ },
+ {
+  "nameKo": "에글리 우리에 그랑크뤼",
+  "nameOrig": "Grand Cru",
+  "producerKo": "에글리 우리에",
+  "producerOrig": "egly-Ouriet",
+  "region": "montagne-de-reims",
+  "appellation": "Champagne",
+  "grape": "블렌드",
+  "type": "sparkling",
+  "vintage": "NV",
+  "price": "19만원대",
+  "desc": ""
  }
 ]
