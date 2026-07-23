@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vin Carte — 프랑스 와인 지도</title>
+<style>
+  :root {
+    --bg: #16121a;
+    --panel: #211b28;
+    --panel2: #2a2233;
+    --line: #3a3145;
+    --text: #efe9f2;
+    --muted: #a89bb5;
+    --wine: #b0356b;
+    --wine-soft: #d1789f;
+    --gold: #d9b96a;
+    --red: #c96a6a;
+    --white-w: #e3d48a;
+    --sparkling: #9fc7d9;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    min-height: 100vh;
+  }
+  header {
+    padding: 20px 28px 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
+  }
+  header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
+  header h1 span { color: var(--wine-soft); }
+  .search-wrap { flex: 1; min-width: 260px; max-width: 520px; position: relative; }
+  .search-wrap input {
+    width: 100%; padding: 10px 14px 10px 38px;
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 10px;
+    color: var(--text); font-size: 14px; outline: none;
+  }
+  .search-wrap input:focus { border-color: var(--wine-soft); }
+  .search-wrap::before {
+    content: "🔍"; position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    font-size: 13px; opacity: 0.7;
+  }
+  .tabs { display: flex; gap: 8px; }
+  .tabs button {
+    padding: 9px 18px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--muted); font-size: 14px; cursor: pointer;
+    font-weight: 600;
+  }
+  .tabs button.active { background: var(--wine); border-color: var(--wine); color: #fff; }
+
+  main { display: grid; grid-template-columns: minmax(340px, 1fr) minmax(320px, 480px); gap: 0; }
+  @media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+
+  .map-area { padding: 18px 10px 28px; display: flex; flex-direction: column; align-items: center; }
+  .map-title { font-size: 15px; color: var(--muted); margin-bottom: 4px; }
+  svg { width: 100%; max-width: 560px; height: auto; }
+
+  .region {
+    cursor: pointer;
+    stroke: var(--line); stroke-width: 1.5;
+    transition: filter .15s, opacity .15s;
+    opacity: 0.88;
+  }
+  .region:hover { filter: brightness(1.25); opacity: 1; }
+  .region.selected { stroke: var(--gold); stroke-width: 3; filter: brightness(1.2); opacity: 1; }
+  .region-label {
+    font-size: 13px; fill: var(--text); pointer-events: none;
+    font-weight: 600; paint-order: stroke; stroke: rgba(0,0,0,.55); stroke-width: 3px;
+  }
+  .city-label { font-size: 11px; fill: var(--muted); pointer-events: none; }
+  .city-dot { fill: var(--muted); }
+
+  .side {
+    border-left: 1px solid var(--line); background: var(--panel);
+    padding: 20px; min-height: calc(100vh - 70px); overflow-y: auto;
+  }
+  @media (max-width: 860px) { .side { border-left: none; border-top: 1px solid var(--line); min-height: auto; } }
+  .side h2 { font-size: 18px; margin-bottom: 4px; }
+  .side .desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+  .badge-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .badge {
+    font-size: 11px; padding: 3px 10px; border-radius: 999px;
+    background: var(--panel2); border: 1px solid var(--line); color: var(--muted);
+  }
+  .count-note { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+
+  .wine-card {
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 10px; cursor: default;
+    transition: border-color .15s;
+  }
+  .wine-card:hover { border-color: var(--wine-soft); }
+  .wine-card .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .wine-card .name { font-size: 14px; font-weight: 700; }
+  .wine-card .vintage { font-size: 12px; color: var(--gold); white-space: nowrap; }
+  .wine-card .producer { font-size: 12px; color: var(--wine-soft); margin-top: 2px; }
+  .wine-card .meta { font-size: 12px; color: var(--muted); margin-top: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .type-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; }
+  .t-red .type-dot { background: var(--red); }
+  .t-white .type-dot { background: var(--white-w); }
+  .t-sparkling .type-dot { background: var(--sparkling); }
+  .empty { color: var(--muted); font-size: 13px; padding: 24px 0; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Vin <span>Carte</span></h1>
+  <div class="tabs">
+    <button id="tab-bourgogne" class="active">부르고뉴</button>
+    <button id="tab-champagne">샹파뉴</button>
+  </div>
+  <div class="search-wrap">
+    <input id="search" type="text" placeholder="와인, 생산자, 품종, 아펠라시옹 검색… (전체 와인 대상)">
+  </div>
+</header>
+
+<main>
+  <div class="map-area">
+    <div class="map-title" id="map-title">부르고뉴 (Bourgogne) — 지역을 클릭하세요</div>
+
+    <!-- 부르고뉴 지도 -->
+    <svg id="map-bourgogne" viewBox="0 0 560 640" aria-label="부르고뉴 지도">
+      <rect width="560" height="640" fill="transparent"/>
+      <!-- 강 (Saône 방향 암시) -->
+      <path d="M 470 240 C 455 340, 440 460, 455 630" stroke="#3d4a63" stroke-width="8" fill="none" opacity="0.5"/>
+      <!-- Chablis -->
+      <path class="region" data-region="chablis" fill="#7a8a3f"
+        d="M 95 55 C 130 40, 180 45, 195 75 C 210 105, 190 135, 155 140 C 115 145, 80 120, 82 90 C 83 72, 85 60, 95 55 Z"/>
+      <text class="region-label" x="138" y="98" text-anchor="middle">샤블리</text>
+      <!-- Côte de Nuits -->
+      <path class="region" data-region="cote-de-nuits" fill="#8a3a52"
+        d="M 330 150 C 355 145, 372 160, 375 185 C 380 220, 372 260, 360 285 C 348 305, 322 305, 312 285 C 300 255, 302 200, 312 172 C 317 158, 322 152, 330 150 Z"/>
+      <text class="region-label" x="340" y="230" text-anchor="middle">코트 드 뉘</text>
+      <!-- Côte de Beaune -->
+      <path class="region" data-region="cote-de-beaune" fill="#a3506b"
+        d="M 312 300 C 335 292, 358 300, 362 322 C 368 355, 355 395, 338 415 C 322 432, 296 428, 288 405 C 278 375, 285 330, 296 312 C 300 305, 305 302, 312 300 Z"/>
+      <text class="region-label" x="325" y="368" text-anchor="middle">코트 드 본</text>
+      <!-- Côte Chalonnaise -->
+      <path class="region" data-region="cote-chalonnaise" fill="#8a6a3a"
+        d="M 285 435 C 308 428, 330 438, 333 460 C 336 485, 326 512, 308 522 C 288 532, 265 522, 260 500 C 255 478, 265 448, 285 435 Z"/>
+      <text class="region-label" x="296" y="483" text-anchor="middle">코트 샬로네즈</text>
+      <!-- Mâconnais -->
+      <path class="region" data-region="maconnais" fill="#5f7a4a"
+        d="M 265 535 C 292 528, 318 540, 322 565 C 326 592, 310 618, 285 624 C 258 630, 235 615, 232 590 C 229 565, 242 542, 265 535 Z"/>
+      <text class="region-label" x="277" y="583" text-anchor="middle">마코네</text>
+      <!-- 도시 -->
+      <circle class="city-dot" cx="392" cy="140" r="4"/><text class="city-label" x="402" y="144">디종</text>
+      <circle class="city-dot" cx="372" cy="330" r="4"/><text class="city-label" x="382" y="334">본</text>
+      <circle class="city-dot" cx="330" cy="612" r="4"/><text class="city-label" x="340" y="616">마콩</text>
+      <circle class="city-dot" cx="205" cy="70" r="4"/><text class="city-label" x="215" y="74">오세르</text>
+    </svg>
+
+    <!-- 샹파뉴 지도 -->
+    <svg id="map-champagne" viewBox="0 0 560 640" style="display:none" aria-label="샹파뉴 지도">
+      <rect width="560" height="640" fill="transparent"/>
+      <!-- Marne 강 -->
+      <path d="M 60 285 C 160 265, 260 258, 380 245" stroke="#3d4a63" stroke-width="8" fill="none" opacity="0.5"/>
+      <!-- Montagne de Reims -->
+      <path class="region" data-region="montagne-de-reims" fill="#8a3a52"
+        d="M 250 130 C 300 115, 360 122, 385 155 C 405 185, 390 215, 350 225 C 305 236, 255 228, 235 198 C 220 175, 228 142, 250 130 Z"/>
+      <text class="region-label" x="312" y="180" text-anchor="middle">몽타뉴 드 랭스</text>
+      <!-- Vallée de la Marne -->
+      <path class="region" data-region="vallee-de-la-marne" fill="#5f7a4a"
+        d="M 80 250 C 150 232, 230 228, 290 240 C 320 246, 322 275, 295 285 C 230 302, 140 302, 90 285 C 65 276, 62 258, 80 250 Z"/>
+      <text class="region-label" x="190" y="272" text-anchor="middle">발레 드 라 마른</text>
+      <!-- Côte des Blancs -->
+      <path class="region" data-region="cote-des-blancs" fill="#b0a44a"
+        d="M 300 300 C 328 292, 352 305, 355 332 C 358 365, 345 400, 322 412 C 300 423, 278 410, 275 385 C 272 355, 280 315, 300 300 Z"/>
+      <text class="region-label" x="315" y="360" text-anchor="middle">코트 데 블랑</text>
+      <!-- Côte de Sézanne -->
+      <path class="region" data-region="cote-de-sezanne" fill="#7a8a3f"
+        d="M 235 430 C 262 420, 288 430, 292 455 C 296 480, 282 505, 258 510 C 232 516, 212 500, 212 476 C 212 455, 220 438, 235 430 Z"/>
+      <text class="region-label" x="252" y="472" text-anchor="middle">코트 드 세잔</text>
+      <!-- Côte des Bar -->
+      <path class="region" data-region="cote-des-bar" fill="#8a6a3a"
+        d="M 380 520 C 430 505, 490 512, 508 545 C 522 572, 505 598, 465 605 C 420 613, 375 600, 365 572 C 358 550, 362 530, 380 520 Z"/>
+      <text class="region-label" x="440" y="562" text-anchor="middle">코트 데 바르</text>
+      <!-- 도시 -->
+      <circle class="city-dot" cx="310" cy="95" r="4"/><text class="city-label" x="320" y="99">랭스</text>
+      <circle class="city-dot" cx="290" cy="265" r="4"/><text class="city-label" x="300" y="260">에페르네</text>
+      <circle class="city-dot" cx="480" cy="620" r="4"/><text class="city-label" x="428" y="624">트루아</text>
+    </svg>
+  </div>
+
+  <aside class="side">
+    <div id="panel"></div>
+  </aside>
+</main>
+
+<script>
+const REGIONS = {
+  "chablis": {
+    map: "bourgogne", name: "샤블리 (Chablis)",
+    desc: "부르고뉴 최북단, 키메리지안 석회질 토양에서 나오는 미네랄리티 강한 샤르도네 화이트의 성지.",
+    grapes: ["샤르도네"], climate: "서늘한 대륙성", famous: "그랑 크뤼 7개 클리마"
+  },
+  "cote-de-nuits": {
+    map: "bourgogne", name: "코트 드 뉘 (Côte de Nuits)",
+    desc: "세계 최고의 피노 누아 산지. 주브레-샹베르탱, 본 로마네 등 전설적인 그랑 크뤼 마을이 이어진다.",
+    grapes: ["피노 누아"], climate: "대륙성", famous: "로마네 콩티, 샹베르탱"
+  },
+  "cote-de-beaune": {
+    map: "bourgogne", name: "코트 드 본 (Côte de Beaune)",
+    desc: "몽라셰·뫼르소 등 세계 최정상 화이트와 볼네·포마르의 우아한 레드가 공존하는 지역.",
+    grapes: ["샤르도네", "피노 누아"], climate: "대륙성", famous: "몽라셰, 코르통-샤를마뉴"
+  },
+  "cote-chalonnaise": {
+    map: "bourgogne", name: "코트 샬로네즈 (Côte Chalonnaise)",
+    desc: "메르퀴레, 지브리, 륄리 등 가성비 좋은 피노 누아와 샤르도네, 그리고 알리고테의 부즈롱.",
+    grapes: ["피노 누아", "샤르도네", "알리고테"], climate: "대륙성", famous: "메르퀴레, 몽타니"
+  },
+  "maconnais": {
+    map: "bourgogne", name: "마코네 (Mâconnais)",
+    desc: "부르고뉴 남부의 온화한 지역. 푸이-퓌세를 필두로 풍만한 스타일의 샤르도네가 주력.",
+    grapes: ["샤르도네", "가메"], climate: "온화한 대륙성", famous: "푸이-퓌세, 생-베랑"
+  },
+  "montagne-de-reims": {
+    map: "champagne", name: "몽타뉴 드 랭스 (Montagne de Reims)",
+    desc: "피노 누아 중심의 그랑 크뤼 마을(부지, 베르즈네, 앙보네)이 모여 있는 샹파뉴의 심장.",
+    grapes: ["피노 누아", "샤르도네"], climate: "서늘한 해양성", famous: "부지, 베르즈네 그랑 크뤼"
+  },
+  "vallee-de-la-marne": {
+    map: "champagne", name: "발레 드 라 마른 (Vallée de la Marne)",
+    desc: "마른 강을 따라 펼쳐진 계곡. 과일 향이 풍부한 피노 뫼니에의 본거지.",
+    grapes: ["피노 뫼니에", "피노 누아"], climate: "서늘한 해양성", famous: "아이(Aÿ), 오빌레르"
+  },
+  "cote-des-blancs": {
+    map: "champagne", name: "코트 데 블랑 (Côte des Blancs)",
+    desc: "이름 그대로 '화이트의 언덕'. 샤르도네 100% 블랑 드 블랑의 최고 산지 (르 메닐, 아비즈).",
+    grapes: ["샤르도네"], climate: "서늘한 해양성", famous: "르 메닐-쉬르-오제, 크라망"
+  },
+  "cote-de-sezanne": {
+    map: "champagne", name: "코트 드 세잔 (Côte de Sézanne)",
+    desc: "코트 데 블랑 남쪽의 연장선. 부드럽고 과일 향이 풍부한 샤르도네 스타일.",
+    grapes: ["샤르도네"], climate: "온화한 해양성", famous: "세잔"
+  },
+  "cote-des-bar": {
+    map: "champagne", name: "코트 데 바르 (Côte des Bar / Aube)",
+    desc: "샹파뉴 남부 오브 지역. 키메리지안 토양의 피노 누아와 개성 있는 소규모 생산자(그로워)들의 무대.",
+    grapes: ["피노 누아"], climate: "대륙성 영향", famous: "레 리세, 로제 데 리세"
+  }
+};
+
+const WINES = [
+  // 샤블리
+  { name: "샤블리 그랑 크뤼 레 클로", producer: "도멘 윌리엄 페브르", region: "chablis", appellation: "Chablis Grand Cru", grape: "샤르도네", type: "white", vintage: 2021, price: "18만원대" },
+  { name: "샤블리 프르미에 크뤼 몽테 드 토네르", producer: "도멘 프랑수아 라브노", region: "chablis", appellation: "Chablis 1er Cru", grape: "샤르도네", type: "white", vintage: 2020, price: "30만원대" },
+  { name: "샤블리 뱀 드 비네", producer: "라 샤블리지엔", region: "chablis", appellation: "Chablis", grape: "샤르도네", type: "white", vintage: 2022, price: "4만원대" },
+  { name: "쁘띠 샤블리", producer: "도멘 크리스티앙 모로", region: "chablis", appellation: "Petit Chablis", grape: "샤르도네", type: "white", vintage: 2022, price: "3만원대" },
+  // 코트 드 뉘
+  { name: "로마네 콩티", producer: "도멘 드 라 로마네 콩티", region: "cote-de-nuits", appellation: "Romanée-Conti Grand Cru", grape: "피노 누아", type: "red", vintage: 2019, price: "위탁 문의" },
+  { name: "샹베르탱 그랑 크뤼", producer: "도멘 아르망 루소", region: "cote-de-nuits", appellation: "Chambertin Grand Cru", grape: "피노 누아", type: "red", vintage: 2018, price: "300만원대" },
+  { name: "주브레-샹베르탱 비에유 비뉴", producer: "도멘 드니 모르테", region: "cote-de-nuits", appellation: "Gevrey-Chambertin", grape: "피노 누아", type: "red", vintage: 2020, price: "25만원대" },
+  { name: "뉘-생-조르주 프르미에 크뤼 레 생-조르주", producer: "도멘 앙리 구주", region: "cote-de-nuits", appellation: "Nuits-Saint-Georges 1er Cru", grape: "피노 누아", type: "red", vintage: 2019, price: "28만원대" },
+  { name: "샹볼-뮈지니", producer: "도멘 조르주 루미에", region: "cote-de-nuits", appellation: "Chambolle-Musigny", grape: "피노 누아", type: "red", vintage: 2020, price: "45만원대" },
+  { name: "부르고뉴 피노 누아", producer: "도멘 메오-카뮈제", region: "cote-de-nuits", appellation: "Bourgogne Rouge", grape: "피노 누아", type: "red", vintage: 2021, price: "12만원대" },
+  // 코트 드 본
+  { name: "몽라셰 그랑 크뤼", producer: "도멘 르플레브", region: "cote-de-beaune", appellation: "Montrachet Grand Cru", grape: "샤르도네", type: "white", vintage: 2019, price: "위탁 문의" },
+  { name: "뫼르소 프르미에 크뤼 페리에르", producer: "도멘 코슈-뒤리", region: "cote-de-beaune", appellation: "Meursault 1er Cru", grape: "샤르도네", type: "white", vintage: 2020, price: "150만원대" },
+  { name: "퓔리니-몽라셰", producer: "도멘 에티엔 소제", region: "cote-de-beaune", appellation: "Puligny-Montrachet", grape: "샤르도네", type: "white", vintage: 2021, price: "22만원대" },
+  { name: "볼네 프르미에 크뤼 클로 데 셴", producer: "도멘 미셸 라파르주", region: "cote-de-beaune", appellation: "Volnay 1er Cru", grape: "피노 누아", type: "red", vintage: 2019, price: "20만원대" },
+  { name: "포마르 프르미에 크뤼 뤼지앙", producer: "도멘 콩트 아르망", region: "cote-de-beaune", appellation: "Pommard 1er Cru", grape: "피노 누아", type: "red", vintage: 2018, price: "23만원대" },
+  { name: "코르통-샤를마뉴 그랑 크뤼", producer: "도멘 보노 뒤 마르트레", region: "cote-de-beaune", appellation: "Corton-Charlemagne Grand Cru", grape: "샤르도네", type: "white", vintage: 2020, price: "60만원대" },
+  // 코트 샬로네즈
+  { name: "메르퀴레 프르미에 크뤼 클로 뒤 루아", producer: "도멘 페블레", region: "cote-chalonnaise", appellation: "Mercurey 1er Cru", grape: "피노 누아", type: "red", vintage: 2020, price: "8만원대" },
+  { name: "지브리 프르미에 크뤼", producer: "도멘 조블로", region: "cote-chalonnaise", appellation: "Givry 1er Cru", grape: "피노 누아", type: "red", vintage: 2021, price: "7만원대" },
+  { name: "륄리 블랑", producer: "도멘 자크송", region: "cote-chalonnaise", appellation: "Rully", grape: "샤르도네", type: "white", vintage: 2021, price: "6만원대" },
+  { name: "부즈롱 알리고테", producer: "도멘 드 빌렌", region: "cote-chalonnaise", appellation: "Bouzeron", grape: "알리고테", type: "white", vintage: 2022, price: "5만원대" },
+  // 마코네
+  { name: "푸이-퓌세 클로 드 라 로슈", producer: "도멘 자크 사우마즈", region: "maconnais", appellation: "Pouilly-Fuissé", grape: "샤르도네", type: "white", vintage: 2021, price: "9만원대" },
+  { name: "생-베랑", producer: "도멘 라 수프랑딘", region: "maconnais", appellation: "Saint-Véran", grape: "샤르도네", type: "white", vintage: 2022, price: "5만원대" },
+  { name: "마콩-빌라주", producer: "도멘 드 라 보리", region: "maconnais", appellation: "Mâcon-Villages", grape: "샤르도네", type: "white", vintage: 2022, price: "3만원대" },
+  { name: "비레-클레세", producer: "도멘 앙드레 보노므", region: "maconnais", appellation: "Viré-Clessé", grape: "샤르도네", type: "white", vintage: 2021, price: "6만원대" },
+  // 몽타뉴 드 랭스
+  { name: "크뤼그 그랑 퀴베", producer: "크뤼그 (Krug)", region: "montagne-de-reims", appellation: "Champagne", grape: "블렌드", type: "sparkling", vintage: "NV", price: "35만원대" },
+  { name: "부지 그랑 크뤼 브뤼", producer: "폴 바라", region: "montagne-de-reims", appellation: "Champagne Grand Cru", grape: "피노 누아", type: "sparkling", vintage: "NV", price: "12만원대" },
+  { name: "베르즈네 블랑 드 누아", producer: "에글리-우리에", region: "montagne-de-reims", appellation: "Champagne Grand Cru", grape: "피노 누아", type: "sparkling", vintage: "NV", price: "30만원대" },
+  { name: "뵈브 클리코 옐로 라벨", producer: "뵈브 클리코", region: "montagne-de-reims", appellation: "Champagne", grape: "블렌드", type: "sparkling", vintage: "NV", price: "9만원대" },
+  // 발레 드 라 마른
+  { name: "돔 페리뇽", producer: "모엣 & 샹동", region: "vallee-de-la-marne", appellation: "Champagne", grape: "블렌드", type: "sparkling", vintage: 2013, price: "35만원대" },
+  { name: "볼랭저 스페셜 퀴베", producer: "볼랭저 (Bollinger)", region: "vallee-de-la-marne", appellation: "Champagne", grape: "블렌드", type: "sparkling", vintage: "NV", price: "13만원대" },
+  { name: "라 클로즈리 레 베귄", producer: "제롬 프레보", region: "vallee-de-la-marne", appellation: "Champagne", grape: "피노 뫼니에", type: "sparkling", vintage: "NV", price: "40만원대" },
+  { name: "트리부 뫼니에", producer: "트리부 (Tribaut)", region: "vallee-de-la-marne", appellation: "Champagne", grape: "피노 뫼니에", type: "sparkling", vintage: "NV", price: "7만원대" },
+  // 코트 데 블랑
+  { name: "살롱 르 메닐 블랑 드 블랑", producer: "살롱 (Salon)", region: "cote-des-blancs", appellation: "Champagne Grand Cru", grape: "샤르도네", type: "sparkling", vintage: 2012, price: "150만원대" },
+  { name: "콩트 드 샹파뉴 블랑 드 블랑", producer: "테탱저", region: "cote-des-blancs", appellation: "Champagne", grape: "샤르도네", type: "sparkling", vintage: 2012, price: "30만원대" },
+  { name: "피에르 페테르 퀴베 드 레제르브", producer: "피에르 페테르", region: "cote-des-blancs", appellation: "Champagne Grand Cru", grape: "샤르도네", type: "sparkling", vintage: "NV", price: "10만원대" },
+  { name: "아그라파르 레 7 크뤼", producer: "아그라파르 (Agrapart)", region: "cote-des-blancs", appellation: "Champagne", grape: "샤르도네", type: "sparkling", vintage: "NV", price: "15만원대" },
+  // 코트 드 세잔
+  { name: "울리스 콜랭 레 마이용", producer: "울리스 콜랭", region: "cote-de-sezanne", appellation: "Champagne", grape: "샤르도네", type: "sparkling", vintage: "NV", price: "25만원대" },
+  { name: "르 브룅 드 뇌빌 블랑 드 블랑", producer: "르 브룅 드 뇌빌", region: "cote-de-sezanne", appellation: "Champagne", grape: "샤르도네", type: "sparkling", vintage: "NV", price: "8만원대" },
+  // 코트 데 바르
+  { name: "세드릭 부샤르 로즈 드 잔", producer: "세드릭 부샤르", region: "cote-des-bar", appellation: "Champagne", grape: "피노 누아", type: "sparkling", vintage: 2019, price: "30만원대" },
+  { name: "플뢰리 블랑 드 누아", producer: "플뢰리 (Fleury)", region: "cote-des-bar", appellation: "Champagne", grape: "피노 누아", type: "sparkling", vintage: "NV", price: "9만원대" },
+  { name: "드라피에 카르트 도르", producer: "드라피에 (Drappier)", region: "cote-des-bar", appellation: "Champagne", grape: "피노 누아", type: "sparkling", vintage: "NV", price: "7만원대" }
+];
+
+const TYPE_LABEL = { red: "레드", white: "화이트", sparkling: "스파클링" };
+
+let currentMap = "bourgogne";
+let selectedRegion = null;
+
+const panel = document.getElementById("panel");
+const searchInput = document.getElementById("search");
+
+function wineCard(w) {
+  const regionName = REGIONS[w.region] ? REGIONS[w.region].name.split(" (")[0] : "";
+  return `<div class="wine-card t-${w.type}">
+    <div class="top"><span class="name"><span class="type-dot"></span>${w.name}</span><span class="vintage">${w.vintage}</span></div>
+    <div class="producer">${w.producer}</div>
+    <div class="meta">
+      <span>${w.appellation}</span><span>${w.grape}</span>
+      <span>${TYPE_LABEL[w.type]}</span><span>${w.price}</span><span>📍 ${regionName}</span>
+    </div>
+  </div>`;
+}
+
+function renderRegion(id) {
+  const r = REGIONS[id];
+  const wines = WINES.filter(w => w.region === id);
+  panel.innerHTML = `
+    <h2>${r.name}</h2>
+    <p class="desc">${r.desc}</p>
+    <div class="badge-row">
+      ${r.grapes.map(g => `<span class="badge">🍇 ${g}</span>`).join("")}
+      <span class="badge">🌡 ${r.climate}</span>
+      <span class="badge">⭐ ${r.famous}</span>
+    </div>
+    <div class="count-note">이 지역 와인 ${wines.length}종</div>
+    ${wines.map(wineCard).join("")}`;
+}
+
+function renderSearch(q) {
+  const query = q.trim().toLowerCase();
+  const results = WINES.filter(w => {
+    const regionName = REGIONS[w.region] ? REGIONS[w.region].name : "";
+    return [w.name, w.producer, w.appellation, w.grape, regionName, TYPE_LABEL[w.type]]
+      .join(" ").toLowerCase().includes(query);
+  });
+  panel.innerHTML = `
+    <h2>검색 결과</h2>
+    <div class="count-note">"${q}" — ${results.length}종 (부르고뉴·샹파뉴 전체)</div>
+    ${results.length ? results.map(wineCard).join("") : `<div class="empty">검색 결과가 없습니다.</div>`}`;
+}
+
+function renderHome() {
+  const mapName = currentMap === "bourgogne" ? "부르고뉴" : "샹파뉴";
+  const regionList = Object.entries(REGIONS).filter(([, r]) => r.map === currentMap);
+  panel.innerHTML = `
+    <h2>${mapName} 와인 지도</h2>
+    <p class="desc">왼쪽 지도에서 지역을 클릭하면 해당 지역의 와인 목록이 표시됩니다. 상단 검색창은 지역과 무관하게 전체 와인을 검색합니다.</p>
+    <div class="count-note">지역 ${regionList.length}곳 · 등록 와인 ${WINES.length}종</div>
+    ${regionList.map(([id, r]) => `
+      <div class="wine-card" style="cursor:pointer" onclick="selectRegion('${id}')">
+        <div class="top"><span class="name">${r.name}</span></div>
+        <div class="meta"><span>🍇 ${r.grapes.join(", ")}</span><span>${WINES.filter(w => w.region === id).length}종</span></div>
+      </div>`).join("")}`;
+}
+
+function selectRegion(id) {
+  selectedRegion = id;
+  searchInput.value = "";
+  document.querySelectorAll(".region").forEach(el =>
+    el.classList.toggle("selected", el.dataset.region === id));
+  renderRegion(id);
+}
+window.selectRegion = selectRegion;
+
+document.querySelectorAll(".region").forEach(el => {
+  el.addEventListener("click", () => selectRegion(el.dataset.region));
+});
+
+function switchMap(map) {
+  currentMap = map;
+  selectedRegion = null;
+  searchInput.value = "";
+  document.getElementById("map-bourgogne").style.display = map === "bourgogne" ? "" : "none";
+  document.getElementById("map-champagne").style.display = map === "champagne" ? "" : "none";
+  document.getElementById("tab-bourgogne").classList.toggle("active", map === "bourgogne");
+  document.getElementById("tab-champagne").classList.toggle("active", map === "champagne");
+  document.getElementById("map-title").textContent =
+    map === "bourgogne" ? "부르고뉴 (Bourgogne) — 지역을 클릭하세요" : "샹파뉴 (Champagne) — 지역을 클릭하세요";
+  document.querySelectorAll(".region").forEach(el => el.classList.remove("selected"));
+  renderHome();
+}
+document.getElementById("tab-bourgogne").addEventListener("click", () => switchMap("bourgogne"));
+document.getElementById("tab-champagne").addEventListener("click", () => switchMap("champagne"));
+
+searchInput.addEventListener("input", e => {
+  const q = e.target.value;
+  if (!q.trim()) {
+    selectedRegion ? renderRegion(selectedRegion) : renderHome();
+    return;
+  }
+  document.querySelectorAll(".region").forEach(el => el.classList.remove("selected"));
+  selectedRegion = null;
+  renderSearch(q);
+});
+
+renderHome();
+</script>
+</body>
+</html>
