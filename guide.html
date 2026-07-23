@@ -4,126 +4,154 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>가이드 — Carte des Vins</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,400&family=Noto+Serif+KR:wght@200;300;400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #fbfaf8; --text: #211c1e; --muted: #8a8286;
-    --hair: #e7e3df; --accent: #8e2a3e;
-  }
+  :root { --ink: #111; --soft: rgba(25,25,25,.62); --hair: #e9e6e2; --accent: #8e2a3e; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: var(--bg); color: var(--text);
-    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-    line-height: 1.8; -webkit-font-smoothing: antialiased;
+    background: #fff; color: var(--ink);
+    font-family: "Noto Serif KR", "Cormorant", serif;
+    font-weight: 300; -webkit-font-smoothing: antialiased;
   }
+  .fr { font-family: "Cormorant", "Noto Serif KR", serif; }
+
   header {
-    position: sticky; top: 0; z-index: 10;
-    background: #fbfaf8f2; backdrop-filter: blur(6px);
-    border-bottom: 1px solid var(--hair);
+    position: fixed; top: 0; left: 0; right: 0; z-index: 20;
     display: flex; align-items: baseline; gap: 26px;
-    padding: 18px 24px;
+    padding: 20px 28px; mix-blend-mode: normal;
   }
-  .wordmark { font-size: 15px; font-weight: 700; color: var(--text); text-decoration: none; }
-  .wordmark span { color: var(--accent); }
-  header nav { display: flex; gap: 20px; }
+  .wordmark { font-family: "Cormorant", serif; font-style: italic; font-size: 19px; color: var(--ink); text-decoration: none; }
+  header nav { display: flex; gap: 22px; margin-left: auto; }
   header nav a, header nav button {
-    color: var(--muted); text-decoration: none; font-size: 13.5px;
-    background: none; border: none; cursor: pointer; font-family: inherit; padding: 0;
+    font-family: "Noto Serif KR", serif; font-weight: 300;
+    color: var(--ink); text-decoration: none; font-size: 13px;
+    background: none; border: none; cursor: pointer; padding: 0;
   }
   header nav a:hover, header nav button:hover { color: var(--accent); }
-  .progress { margin-left: auto; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .progress { font-family: "Cormorant", serif; font-size: 14px; color: var(--soft); font-variant-numeric: tabular-nums; }
 
-  main { max-width: 680px; margin: 0 auto; padding: 0 24px 90px; }
+  .paren { font-family: "Cormorant", serif; font-weight: 300; font-size: 17px; color: var(--ink); }
+  .chaplabel { font-family: "Cormorant", serif; font-weight: 300; font-style: italic; font-size: 19px; color: var(--ink); }
 
-  .paren { font-size: 12px; letter-spacing: 0.14em; color: var(--muted); }
+  .display {
+    font-family: "Cormorant", "Noto Serif KR", serif; font-weight: 300;
+    text-transform: uppercase; text-align: center;
+    font-size: clamp(46px, 9.5vw, 104px); line-height: 0.94; letter-spacing: 0.01em;
+  }
+  .display-ko {
+    font-family: "Noto Serif KR", serif; font-weight: 200;
+    text-align: center; font-size: clamp(30px, 6vw, 58px); line-height: 1.22;
+  }
 
   /* ── 목차(홈) ── */
-  .hero { padding: 15vh 0 10vh; }
-  .hero h1 {
-    font-size: clamp(38px, 8vw, 66px); font-weight: 800;
-    line-height: 1.12; letter-spacing: -0.02em; margin-top: 18px;
+  .hero {
+    min-height: 92vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 30px; padding: 90px 24px 40px;
+    text-align: center;
   }
-  .hero h1 em { font-style: normal; color: var(--accent); }
-  .idx { margin-top: 9vh; }
-  .idx a {
-    display: flex; align-items: baseline; gap: 18px;
-    padding: 30px 0; border-bottom: 1px solid var(--hair);
-    text-decoration: none; color: var(--text);
+  .hero .paren { animation: nudge 2.4s ease-in-out infinite; }
+  @keyframes nudge { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+
+  .photoband { height: 64vh; overflow: hidden; position: relative; }
+  .photoband img { width: 100%; height: 120%; object-fit: cover; object-position: center 30%; }
+  .photoband .cap {
+    position: absolute; left: 0; right: 0; bottom: 34px; text-align: center;
+    color: #fff; font-family: "Cormorant", serif; font-size: 15px; letter-spacing: 0.12em;
+    text-shadow: 0 1px 14px rgba(0,0,0,.5);
   }
-  .idx a:first-child { border-top: 1px solid var(--hair); }
-  .idx .no { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
-  .idx .t { font-size: clamp(24px, 4.6vw, 36px); font-weight: 800; letter-spacing: -0.01em; transition: color .15s; }
-  .idx .arrow { margin-left: auto; color: var(--muted); font-size: 20px; transition: transform .2s, color .15s; }
-  .idx a:hover .t { color: var(--accent); }
-  .idx a:hover .arrow { transform: translateX(6px); color: var(--accent); }
+
+  .idx { padding: 15vh 24px 18vh; display: flex; flex-direction: column; gap: 13vh; }
+  .idx a { text-decoration: none; color: var(--ink); text-align: center; display: block; }
+  .idx .chapno { display: block; margin-bottom: 14px; }
+  .idx .t {
+    display: block; font-family: "Cormorant", "Noto Serif KR", serif; font-weight: 300;
+    text-transform: uppercase; font-size: clamp(40px, 7.5vw, 84px); line-height: 0.96;
+    transition: color .25s, letter-spacing .35s;
+  }
+  .idx .ko { display: block; margin-top: 16px; font-size: 15px; font-weight: 300; color: var(--soft); }
+  .idx .num { display: block; margin-top: 12px; font-family: "Cormorant", serif; font-size: 17px; }
+  .idx a:hover .t { color: var(--accent); letter-spacing: 0.035em; }
 
   /* ── 챕터 ── */
-  .opener { min-height: 58vh; display: flex; flex-direction: column; justify-content: center; }
-  .opener .cap { font-size: 13px; letter-spacing: 0.26em; color: var(--muted); font-weight: 600; }
-  .opener h2 {
-    font-size: clamp(40px, 9vw, 74px); font-weight: 800;
-    line-height: 1.08; letter-spacing: -0.02em; margin: 16px 0 18px;
+  .opener {
+    min-height: 88vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 22px;
+    text-align: center; padding: 90px 24px 30px;
   }
-  .opener .num { font-size: 15px; color: var(--muted); }
-  .opener .lead { color: var(--muted); font-size: 15.5px; max-width: 480px; margin-top: 14px; }
+  .opener .lead {
+    max-width: 460px; font-size: 14.5px; line-height: 2; color: var(--soft); margin-top: 10px;
+  }
 
-  article { margin-top: 54px; }
-  article .tag { font-size: 11.5px; letter-spacing: 0.18em; color: var(--accent); font-weight: 600; }
-  h3 { font-size: 19px; font-weight: 700; margin: 8px 0 10px; }
-  h3 small { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 8px; }
-  p { font-size: 15.5px; margin-bottom: 14px; }
+  .content { max-width: 560px; margin: 0 auto; padding: 0 24px 40px; }
+  article { padding: 64px 0 0; }
+  article .tag {
+    font-family: "Cormorant", serif; font-weight: 400; text-transform: uppercase;
+    letter-spacing: 0.22em; font-size: 13px; color: var(--accent);
+    display: block; text-align: center;
+  }
+  h3 { font-family: "Noto Serif KR", serif; font-weight: 400; font-size: 24px; text-align: center; margin: 12px 0 6px; }
+  .sub { text-align: center; font-size: 13px; color: var(--soft); margin-bottom: 22px; }
+  p { font-size: 14.5px; line-height: 2.05; color: rgba(17,17,17,.84); margin-bottom: 14px; }
+  p b { font-weight: 600; }
 
-  .pyramid { margin: 26px 0 10px; }
-  .tier { display: flex; align-items: baseline; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--hair); }
-  .tier:first-child { border-top: 1px solid var(--hair); }
-  .tier .bar { height: 8px; background: #d9d4cf; flex: none; }
-  .tier.t1 .bar { width: 26px; background: var(--accent); }
-  .tier.t2 .bar { width: 62px; }
-  .tier.t3 .bar { width: 120px; }
-  .tier.t4 .bar { width: 190px; }
-  .tier .name { font-size: 14px; font-weight: 700; white-space: nowrap; }
-  .tier .pct { font-size: 12.5px; color: var(--muted); margin-left: auto; white-space: nowrap; }
-  .tier .ex { font-size: 12.5px; color: var(--muted); }
-  .pyr-note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+  .pyramid { margin: 30px 0 12px; }
+  .tier { display: flex; align-items: baseline; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--hair); }
+  .tier:first-child { border-top: 1px solid var(--ink); }
+  .tier .bar { height: 5px; background: #ddd8d2; flex: none; }
+  .tier.t1 .bar { width: 24px; background: var(--accent); }
+  .tier.t2 .bar { width: 58px; }
+  .tier.t3 .bar { width: 112px; }
+  .tier.t4 .bar { width: 178px; }
+  .tier .name { font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .tier .ex { font-size: 12.5px; color: var(--soft); }
+  .tier .pct { font-family: "Cormorant", serif; font-size: 15px; color: var(--soft); margin-left: auto; white-space: nowrap; }
+  .pyr-note { font-size: 13px; color: var(--soft); margin-top: 12px; }
 
-  table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 18px 0 6px; }
-  th { text-align: left; font-size: 12px; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; padding: 0 10px 8px 0; border-bottom: 1px solid var(--text); }
-  td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--hair); vertical-align: top; }
-  td:first-child { font-weight: 700; white-space: nowrap; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 20px 0 8px; }
+  th { text-align: left; font-family: "Cormorant", serif; text-transform: uppercase; letter-spacing: 0.1em; font-size: 13px; font-weight: 500; color: var(--soft); padding: 0 10px 9px 0; border-bottom: 1px solid var(--ink); }
+  td { padding: 11px 10px 11px 0; border-bottom: 1px solid var(--hair); vertical-align: top; line-height: 1.8; }
+  td:first-child { font-weight: 600; white-space: nowrap; }
 
   /* ── 챕터 하단 내비 ── */
-  .chapnav { margin-top: 80px; border-top: 1px solid var(--text); padding-top: 8px; }
-  .chapnav a {
-    display: flex; align-items: baseline; gap: 16px;
-    padding: 22px 0; border-bottom: 1px solid var(--hair);
-    text-decoration: none; color: var(--text);
+  .chapnav { padding: 16vh 24px 16vh; display: flex; flex-direction: column; gap: 8vh; text-align: center; }
+  .chapnav a { text-decoration: none; color: var(--ink); display: block; }
+  .chapnav .dir { display: block; margin-bottom: 10px; }
+  .chapnav .t {
+    display: block; font-family: "Cormorant", "Noto Serif KR", serif; font-weight: 300;
+    text-transform: uppercase; font-size: clamp(30px, 5.5vw, 60px); line-height: 1;
+    transition: color .25s, letter-spacing .35s;
   }
-  .chapnav .dir { font-size: 12px; letter-spacing: 0.14em; color: var(--muted); min-width: 62px; }
-  .chapnav .t { font-size: 20px; font-weight: 800; transition: color .15s; }
-  .chapnav .arrow { margin-left: auto; color: var(--muted); }
-  .chapnav a:hover .t { color: var(--accent); }
+  .chapnav a:hover .t { color: var(--accent); letter-spacing: 0.035em; }
+  .chapnav .small { font-size: 13px; font-weight: 300; color: var(--soft); }
+  .chapnav a:hover .small { color: var(--accent); }
 
-  .view { animation: fadein .35s ease; }
-  @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .view { animation: none; } .idx .arrow { transition: none; } }
+  /* 스크롤 리빌 */
+  .rv { opacity: 0; transform: translateY(26px); transition: opacity .9s ease, transform .9s ease; }
+  .rv.on { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .rv { opacity: 1; transform: none; transition: none; }
+    .hero .paren { animation: none; }
+  }
 
   @media (max-width: 640px) {
-    header { padding: 14px 16px; gap: 16px; }
-    main { padding: 0 20px 70px; }
-    .hero { padding: 10vh 0 6vh; }
-    .opener { min-height: 46vh; }
+    header { padding: 16px 18px; gap: 16px; }
+    .photoband { height: 44vh; }
+    .idx { gap: 9vh; padding: 11vh 20px 13vh; }
+    .content { padding: 0 20px 30px; }
     .tier { gap: 10px; }
-    .tier.t4 .bar { width: 120px; }
-    .tier.t3 .bar { width: 84px; }
-    .tier.t2 .bar { width: 48px; }
+    .tier.t4 .bar { width: 110px; }
+    .tier.t3 .bar { width: 76px; }
+    .tier.t2 .bar { width: 44px; }
     .tier .ex { display: none; }
-    table { font-size: 13px; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <a class="wordmark" href="index.html">Carte des <span>Vins</span></a>
+  <a class="wordmark" href="index.html">Carte des Vins</a>
   <nav>
     <a href="map.html">지도</a>
     <button onclick="show('home')">목차</button>
@@ -136,145 +164,196 @@
 <!-- ═══ 목차 ═══ -->
 <div id="home" class="view">
   <div class="hero">
-    <span class="paren">(Sommaire)</span>
-    <h1>밭 하나의 차이가<br>와인을 <em>바꾼다</em></h1>
+    <div class="display rv">Le Guide<br>du Vin</div>
+    <div class="display-ko rv">밭 하나의 차이가<br>와인을 바꾼다</div>
+    <span class="paren rv">(Scroll)</span>
+  </div>
+  <div class="photoband rv">
+    <img src="assets/vineyard.jpg" alt="로마네 콩티 밭의 십자가">
+    <div class="cap">ROMANÉE-CONTI · VOSNE-ROMANÉE</div>
   </div>
   <nav class="idx">
-    <a href="#ch1" onclick="show('ch1');return false"><span class="no">(1)</span><span class="t">등급을 읽는 법</span><span class="arrow">→</span></a>
-    <a href="#ch2" onclick="show('ch2');return false"><span class="no">(2)</span><span class="t">부르고뉴 이야기</span><span class="arrow">→</span></a>
-    <a href="#ch3" onclick="show('ch3');return false"><span class="no">(3)</span><span class="t">샹파뉴 이야기</span><span class="arrow">→</span></a>
+    <a href="#ch1" onclick="show('ch1');return false" class="rv">
+      <span class="chapno chaplabel">Chapitre Un</span>
+      <span class="t">La Classification</span>
+      <span class="ko">등급을 읽는 법</span>
+      <span class="num">(1)</span>
+    </a>
+    <a href="#ch2" onclick="show('ch2');return false" class="rv">
+      <span class="chapno chaplabel">Chapitre Deux</span>
+      <span class="t">Bourgogne</span>
+      <span class="ko">부르고뉴 이야기</span>
+      <span class="num">(2)</span>
+    </a>
+    <a href="#ch3" onclick="show('ch3');return false" class="rv">
+      <span class="chapno chaplabel">Chapitre Trois</span>
+      <span class="t">Champagne</span>
+      <span class="ko">샹파뉴 이야기</span>
+      <span class="num">(3)</span>
+    </a>
   </nav>
 </div>
 
 <!-- ═══ 챕터 1 ═══ -->
 <div id="ch1" class="view" hidden>
   <div class="opener">
-    <span class="cap">CHAPITRE UN</span>
-    <h2>등급을<br>읽는 법</h2>
-    <span class="num">(1)</span>
-    <p class="lead">부르고뉴는 밭에, 샹파뉴는 마을에 등급을 매깁니다. 이것만 이해해도 라벨의 절반이 읽힙니다.</p>
+    <span class="chaplabel rv">Chapitre Un</span>
+    <div class="display rv">La<br>Classification</div>
+    <span class="paren rv">(1)</span>
+    <p class="lead rv">부르고뉴는 밭에, 샹파뉴는 마을에 등급을 매깁니다.<br>이것만 이해해도 라벨의 절반이 읽힙니다.</p>
   </div>
 
-  <article>
-    <h3>부르고뉴 <small>밭(클리마)의 피라미드</small></h3>
-    <p>수백 년 동안 수도사들이 밭 한 뙈기의 개성을 기록해 온 결과, <b>밭 자체에 등급이 붙는</b> 체계가 만들어졌습니다. 같은 생산자가 만들어도 밭이 다르면 등급과 가격이 완전히 달라집니다. 이 밭 구획을 <b>클리마(climat)</b>라 부르며, 2015년 유네스코 세계유산으로 등재됐습니다.</p>
-    <div class="pyramid">
-      <div class="tier t1"><span class="bar"></span><span class="name">그랑 크뤼</span><span class="ex">몽라셰, 샹베르탱 — 밭 이름만 적힘</span><span class="pct">약 1%</span></div>
-      <div class="tier t2"><span class="bar"></span><span class="name">프르미에 크뤼</span><span class="ex">마을 + 1er Cru + 밭 이름</span><span class="pct">약 10%</span></div>
-      <div class="tier t3"><span class="bar"></span><span class="name">빌라주</span><span class="ex">마을 이름이 곧 와인 이름</span><span class="pct">약 37%</span></div>
-      <div class="tier t4"><span class="bar"></span><span class="name">레지오날</span><span class="ex">Bourgogne 등 지역 명칭</span><span class="pct">약 52%</span></div>
-    </div>
-    <p class="pyr-note">라벨 읽는 요령: 이름이 짧고 낯설수록 등급이 높습니다. "Montrachet"처럼 밭 이름 하나면 그랑 크뤼, "Bourgogne"처럼 넓은 지역명이면 입문 등급입니다.</p>
-  </article>
+  <div class="content">
+    <article class="rv">
+      <span class="tag">Bourgogne</span>
+      <h3>밭의 피라미드</h3>
+      <div class="sub">클리마 climat — 유네스코 세계유산</div>
+      <p>수백 년 동안 수도사들이 밭 한 뙈기의 개성을 기록해 온 결과, <b>밭 자체에 등급이 붙는</b> 체계가 만들어졌습니다. 같은 생산자가 만들어도 밭이 다르면 등급과 가격이 완전히 달라집니다. 이 밭 구획을 <b>클리마</b>라 부르며, 2015년 유네스코 세계유산으로 등재됐습니다.</p>
+      <div class="pyramid">
+        <div class="tier t1"><span class="bar"></span><span class="name">그랑 크뤼</span><span class="ex">몽라셰, 샹베르탱 — 밭 이름만 적힘</span><span class="pct">1%</span></div>
+        <div class="tier t2"><span class="bar"></span><span class="name">프르미에 크뤼</span><span class="ex">마을 + 1er Cru + 밭 이름</span><span class="pct">10%</span></div>
+        <div class="tier t3"><span class="bar"></span><span class="name">빌라주</span><span class="ex">마을 이름이 곧 와인 이름</span><span class="pct">37%</span></div>
+        <div class="tier t4"><span class="bar"></span><span class="name">레지오날</span><span class="ex">Bourgogne 등 지역 명칭</span><span class="pct">52%</span></div>
+      </div>
+      <p class="pyr-note">라벨 읽는 요령 — 이름이 짧고 낯설수록 등급이 높습니다. "Montrachet"처럼 밭 이름 하나면 그랑 크뤼, "Bourgogne"처럼 넓은 지역명이면 입문 등급입니다.</p>
+    </article>
 
-  <article>
-    <h3>샹파뉴 <small>마을의 등급과 퀴베의 위계</small></h3>
-    <p>샹파뉴는 아펠라시옹이 <b>"Champagne" 단 하나</b>입니다. 대신 두 가지 축으로 급이 나뉩니다.</p>
-    <p><b>마을 등급</b> — 포도가 자란 마을에 등급이 붙습니다. 그랑 크뤼 마을 17곳(부지, 베르즈네, 아이, 크라망, 아비즈, 르 메닐-쉬르-오제 등), 프르미에 크뤼 마을 42곳. 라벨에 "Grand Cru"가 있으면 그랑 크뤼 마을 포도 100%라는 뜻입니다.</p>
-    <table>
-      <tr><th>단계</th><th>설명</th><th>예시</th></tr>
-      <tr><td>논빈티지</td><td>여러 해 포도를 블렌딩한 하우스의 기본기</td><td>뵈브 클리코 옐로 라벨</td></tr>
-      <tr><td>빈티지</td><td>작황 좋은 해에만, 그 해 포도 100%</td><td>폴 로저 빈티지</td></tr>
-      <tr><td>프레스티지</td><td>최고의 밭 · 최고의 해 · 최장 숙성</td><td>돔 페리뇽, 크리스탈, 크뤼그</td></tr>
-    </table>
-    <p>라벨 구석의 작은 글자 <b>NM</b>(포도를 사서 만드는 대형 하우스)과 <b>RM</b>(자기 밭 포도로만 만드는 소규모 생산자)도 구분 포인트입니다. 요즘 전 세계 애호가들이 열광하는 "그로워 샴페인"이 바로 RM — 셀로스, 에글리-우리에, 울리스 콜랭 같은 이름들입니다.</p>
-  </article>
+    <article class="rv">
+      <span class="tag">Champagne</span>
+      <h3>마을의 등급, 퀴베의 위계</h3>
+      <div class="sub">그랑 크뤼 마을 17곳 · 프르미에 크뤼 마을 42곳</div>
+      <p>샹파뉴는 아펠라시옹이 <b>"Champagne" 단 하나</b>입니다. 대신 포도가 자란 마을에 등급이 붙습니다 — 부지, 베르즈네, 아이, 크라망, 아비즈, 르 메닐-쉬르-오제 같은 그랑 크뤼 마을 17곳과 프르미에 크뤼 마을 42곳. 라벨에 "Grand Cru"가 있으면 그랑 크뤼 마을 포도 100%라는 뜻입니다.</p>
+      <table>
+        <tr><th>Cuvée</th><th>설명</th><th>예시</th></tr>
+        <tr><td>논빈티지</td><td>여러 해 포도를 블렌딩한 하우스의 기본기</td><td>뵈브 클리코</td></tr>
+        <tr><td>빈티지</td><td>작황 좋은 해에만, 그 해 포도 100%</td><td>폴 로저 빈티지</td></tr>
+        <tr><td>프레스티지</td><td>최고의 밭 · 최고의 해 · 최장 숙성</td><td>돔 페리뇽, 크리스탈</td></tr>
+      </table>
+      <p>라벨 구석의 작은 글자 <b>NM</b>(포도를 사서 만드는 대형 하우스)과 <b>RM</b>(자기 밭 포도로만 만드는 소규모 생산자)도 구분 포인트입니다. 전 세계 애호가들이 열광하는 "그로워 샴페인"이 바로 RM — 셀로스, 에글리-우리에, 울리스 콜랭 같은 이름들입니다.</p>
+    </article>
+  </div>
 
   <nav class="chapnav">
-    <a href="#ch2" onclick="show('ch2');return false"><span class="dir">SUIVANT</span><span class="t">부르고뉴 이야기</span><span class="arrow">→</span></a>
-    <a href="#home" onclick="show('home');return false"><span class="dir">SOMMAIRE</span><span class="t">목차</span><span class="arrow">↑</span></a>
+    <a href="#ch2" onclick="show('ch2');return false" class="rv">
+      <span class="dir chaplabel">Suivant</span>
+      <span class="t">Bourgogne</span>
+    </a>
+    <a href="#home" onclick="show('home');return false" class="rv"><span class="small">(목차로 돌아가기)</span></a>
   </nav>
 </div>
 
 <!-- ═══ 챕터 2 ═══ -->
 <div id="ch2" class="view" hidden>
   <div class="opener">
-    <span class="cap">CHAPITRE DEUX</span>
-    <h2>부르고뉴<br>이야기</h2>
-    <span class="num">(2)</span>
-    <p class="lead">디종에서 리옹 방향으로 이어지는 좁고 긴 언덕. 세계에서 가장 비싼 와인들이 여기서 나옵니다. 북쪽부터 차례로.</p>
+    <span class="chaplabel rv">Chapitre Deux</span>
+    <div class="display rv">Bourgogne</div>
+    <span class="paren rv">(2)</span>
+    <p class="lead rv">디종에서 리옹 방향으로 이어지는 좁고 긴 언덕.<br>세계에서 가장 비싼 와인들이 여기서 나옵니다.</p>
   </div>
 
-  <article>
-    <div class="tag">CHABLIS</div>
-    <h3>샤블리 <small>부르고뉴 최북단 · 샤르도네</small></h3>
-    <p>부르고뉴 본체에서 뚝 떨어져 파리 쪽으로 치우친 외딴 산지입니다. 비밀은 발밑에 있습니다 — <b>1억 5천만 년 전 바다였던 키메리지안 석회 토양</b>에는 굴 껍질 화석이 지금도 박혀 있습니다. 그래서 샤블리의 샤르도네는 부싯돌과 바다 향이 감도는, 세계에서 가장 날카롭고 미네랄한 화이트가 됩니다. 등급은 쁘띠 샤블리부터 그랑 크뤼까지 네 단계로, 그랑 크뤼는 세렝 강 오른쪽 언덕 하나에 모인 7개 클리마(레 클로, 부그로, 발뮈르 등)뿐입니다. 굴 요리와의 궁합은 전설적입니다.</p>
-  </article>
+  <div class="photoband rv">
+    <img src="assets/vineyard.jpg" alt="본-로마네의 밭" style="object-position:center 55%">
+    <div class="cap">LA CROIX DE ROMANÉE-CONTI</div>
+  </div>
 
-  <article>
-    <div class="tag">CÔTE DE NUITS</div>
-    <h3>코트 드 뉘 <small>황금 언덕의 북쪽 · 피노 누아</small></h3>
-    <p>디종 남쪽부터 뉘-생-조르주까지 약 20km, 폭은 좁은 곳이 200m밖에 안 되는 가느다란 언덕. 이 좁은 띠 안에 로마네 콩티, 샹베르탱, 뮈지니 — <b>세계에서 가장 비싼 레드 와인 밭들이 밀집</b>해 있습니다. 주브레-샹베르탱, 샹볼-뮈지니, 본-로마네 같은 마을 이름 하나하나가 애호가들에게는 순례 코스입니다. 나폴레옹이 샹베르탱만 마셨다는 일화, 수도사들이 쌓은 돌담(클로)까지 — 같은 피노 누아가 밭마다 다른 향이 되는 "테루아"를 몸으로 이해하게 되는 곳입니다.</p>
-  </article>
+  <div class="content">
+    <article class="rv">
+      <span class="tag">Chablis</span>
+      <h3>샤블리</h3>
+      <div class="sub">부르고뉴 최북단 · 샤르도네</div>
+      <p>부르고뉴 본체에서 뚝 떨어져 파리 쪽으로 치우친 외딴 산지입니다. 비밀은 발밑에 있습니다 — <b>1억 5천만 년 전 바다였던 키메리지안 석회 토양</b>에는 굴 껍질 화석이 지금도 박혀 있습니다. 그래서 샤블리의 샤르도네는 부싯돌과 바다 향이 감도는, 세계에서 가장 날카롭고 미네랄한 화이트가 됩니다. 등급은 쁘띠 샤블리부터 그랑 크뤼까지 네 단계로, 그랑 크뤼는 세렝 강 오른쪽 언덕 하나에 모인 7개 클리마뿐입니다. 굴 요리와의 궁합은 전설적입니다.</p>
+    </article>
 
-  <article>
-    <div class="tag">CÔTE DE BEAUNE</div>
-    <h3>코트 드 본 <small>황금 언덕의 남쪽 · 화이트의 정점</small></h3>
-    <p>언덕이 남쪽으로 이어지며 분위기가 바뀝니다. 볼네의 우아함, 포마르의 힘 같은 레드도 훌륭하지만 이곳의 왕관은 <b>화이트</b>입니다. 몽라셰, 코르통-샤를마뉴, 뫼르소 — 세계 최고가의 화이트가 전부 이 구간에서 나옵니다. 퓔리니와 샤사뉴 두 마을에 걸친 몽라셰 언덕에는 "신이 마시는 와인"이라는 수식이 따라다닙니다. 중심 도시 본의 오스피스 드 본에서는 550년 넘게 이어진 세계에서 가장 오래된 자선 와인 경매가 매년 11월 열립니다.</p>
-  </article>
+    <article class="rv">
+      <span class="tag">Côte de Nuits</span>
+      <h3>코트 드 뉘</h3>
+      <div class="sub">황금 언덕의 북쪽 · 피노 누아</div>
+      <p>디종 남쪽부터 뉘-생-조르주까지 약 20km, 폭은 좁은 곳이 200m밖에 안 되는 가느다란 언덕. 이 좁은 띠 안에 로마네 콩티, 샹베르탱, 뮈지니 — <b>세계에서 가장 비싼 레드 와인 밭들이 밀집</b>해 있습니다. 주브레-샹베르탱, 샹볼-뮈지니, 본-로마네 같은 마을 이름 하나하나가 애호가들에게는 순례 코스입니다. 같은 피노 누아가 밭마다 다른 향이 되는 "테루아"를 몸으로 이해하게 되는 곳입니다.</p>
+    </article>
 
-  <article>
-    <div class="tag">CÔTE CHALONNAISE</div>
-    <h3>코트 샬로네즈 <small>가성비의 보고</small></h3>
-    <p>황금 언덕이 끝나고 이어지는 야트막한 구릉지대. 그랑 크뤼는 없지만 그래서 <b>부르고뉴에서 가장 합리적인 가격</b>이 있습니다. 레드의 메르퀴레와 지브리(앙리 4세가 사랑한 와인), 화이트의 륄리와 몽타니, 알리고테 품종만을 위한 유일한 마을 AOC 부즈롱까지 다섯 마을이 주인공입니다. 코트 드 본의 유명 도멘들이 밭을 사들이며 품질이 빠르게 오르는 중이라, "아는 사람만 아는" 시기가 지나가고 있습니다. 입문자에게 가장 먼저 권하고 싶은 지역입니다.</p>
-  </article>
+    <article class="rv">
+      <span class="tag">Côte de Beaune</span>
+      <h3>코트 드 본</h3>
+      <div class="sub">황금 언덕의 남쪽 · 화이트의 정점</div>
+      <p>언덕이 남쪽으로 이어지며 분위기가 바뀝니다. 볼네의 우아함, 포마르의 힘 같은 레드도 훌륭하지만 이곳의 왕관은 <b>화이트</b>입니다. 몽라셰, 코르통-샤를마뉴, 뫼르소 — 세계 최고가의 화이트가 전부 이 구간에서 나옵니다. 몽라셰 언덕에는 "신이 마시는 와인"이라는 수식이 따라다닙니다. 중심 도시 본에서는 550년 넘게 이어진 세계에서 가장 오래된 자선 와인 경매가 매년 11월 열립니다.</p>
+    </article>
 
-  <article>
-    <div class="tag">MÂCONNAIS</div>
-    <h3>마코네 <small>부르고뉴의 남쪽 끝 · 햇살의 샤르도네</small></h3>
-    <p>남프랑스의 기운이 느껴지는 온화한 언덕지대입니다. 로마네스크 성당들이 점점이 박힌 풍경 속에서 <b>풍만하고 너그러운 샤르도네</b>가 자랍니다. 스타는 푸이-퓌세 — 선사시대 유적지 솔뤼트레 바위 절벽 아래 원형극장처럼 펼쳐진 밭에서, 잘 익은 과일과 크림 향의 화이트가 나옵니다. 2020년 프르미에 크뤼 22곳이 새로 지정되며 위상이 올라갔습니다. 생-베랑, 비레-클레세, 마콩-빌라주는 "1/3 가격의 부르고뉴 화이트"라 불릴 만큼 실속 있습니다.</p>
-  </article>
+    <article class="rv">
+      <span class="tag">Côte Chalonnaise</span>
+      <h3>코트 샬로네즈</h3>
+      <div class="sub">가성비의 보고</div>
+      <p>황금 언덕이 끝나고 이어지는 야트막한 구릉지대. 그랑 크뤼는 없지만 그래서 <b>부르고뉴에서 가장 합리적인 가격</b>이 있습니다. 레드의 메르퀴레와 지브리(앙리 4세가 사랑한 와인), 화이트의 륄리와 몽타니, 알리고테 품종만을 위한 유일한 마을 AOC 부즈롱까지. 코트 드 본의 유명 도멘들이 밭을 사들이며 품질이 빠르게 오르는 중이라, 입문자에게 가장 먼저 권하고 싶은 지역입니다.</p>
+    </article>
+
+    <article class="rv">
+      <span class="tag">Mâconnais</span>
+      <h3>마코네</h3>
+      <div class="sub">부르고뉴의 남쪽 끝 · 햇살의 샤르도네</div>
+      <p>남프랑스의 기운이 느껴지는 온화한 언덕지대입니다. 로마네스크 성당들이 점점이 박힌 풍경 속에서 <b>풍만하고 너그러운 샤르도네</b>가 자랍니다. 스타는 푸이-퓌세 — 솔뤼트레 바위 절벽 아래 원형극장처럼 펼쳐진 밭에서, 잘 익은 과일과 크림 향의 화이트가 나옵니다. 생-베랑, 비레-클레세, 마콩-빌라주는 "1/3 가격의 부르고뉴 화이트"라 불릴 만큼 실속 있습니다.</p>
+    </article>
+  </div>
 
   <nav class="chapnav">
-    <a href="#ch3" onclick="show('ch3');return false"><span class="dir">SUIVANT</span><span class="t">샹파뉴 이야기</span><span class="arrow">→</span></a>
-    <a href="#ch1" onclick="show('ch1');return false"><span class="dir">PRÉCÉDENT</span><span class="t">등급을 읽는 법</span><span class="arrow">←</span></a>
-    <a href="#home" onclick="show('home');return false"><span class="dir">SOMMAIRE</span><span class="t">목차</span><span class="arrow">↑</span></a>
+    <a href="#ch3" onclick="show('ch3');return false" class="rv">
+      <span class="dir chaplabel">Suivant</span>
+      <span class="t">Champagne</span>
+    </a>
+    <a href="#home" onclick="show('home');return false" class="rv"><span class="small">(목차로 돌아가기)</span></a>
   </nav>
 </div>
 
 <!-- ═══ 챕터 3 ═══ -->
 <div id="ch3" class="view" hidden>
   <div class="opener">
-    <span class="cap">CHAPITRE TROIS</span>
-    <h2>샹파뉴<br>이야기</h2>
-    <span class="num">(3)</span>
-    <p class="lead">파리 동쪽 150km, 포도가 익기에 아슬아슬하게 서늘한 땅. 그 한계가 세계에서 가장 축제적인 와인을 만들었습니다.</p>
+    <span class="chaplabel rv">Chapitre Trois</span>
+    <div class="display rv">Champagne</div>
+    <span class="paren rv">(3)</span>
+    <p class="lead rv">파리 동쪽 150km, 포도가 익기에 아슬아슬하게 서늘한 땅.<br>그 한계가 세계에서 가장 축제적인 와인을 만들었습니다.</p>
   </div>
 
-  <article>
-    <div class="tag">MONTAGNE DE REIMS</div>
-    <h3>몽타뉴 드 랭스 <small>샹파뉴의 심장 · 피노 누아</small></h3>
-    <p>랭스와 에페르네 사이, 숲을 머리에 인 말발굽 모양의 언덕입니다. 역대 프랑스 왕 33명이 대관식을 올린 랭스 대성당의 도시답게 샹파뉴의 역사와 자부심 그 자체입니다. 언덕 사면을 따라 <b>베르즈네, 부지, 앙보네 같은 피노 누아 그랑 크뤼 마을</b>들이 이어지고, 여기서 나온 포도는 샴페인에 뼈대와 힘을 줍니다. 크뤼그, 루이 로드레, 뤼나르의 셀러는 로마 시대에 채석장으로 판 랭스의 백악질 지하 동굴(크레예르)에 수 킬로미터씩 뻗어 있습니다. 2천 년 된 구덩이에서 샴페인이 익어가는 셈입니다.</p>
-  </article>
+  <div class="content">
+    <article class="rv">
+      <span class="tag">Montagne de Reims</span>
+      <h3>몽타뉴 드 랭스</h3>
+      <div class="sub">샹파뉴의 심장 · 피노 누아</div>
+      <p>랭스와 에페르네 사이, 숲을 머리에 인 말발굽 모양의 언덕입니다. 역대 프랑스 왕 33명이 대관식을 올린 랭스 대성당의 도시답게 샹파뉴의 자부심 그 자체입니다. 언덕 사면을 따라 <b>베르즈네, 부지, 앙보네 같은 피노 누아 그랑 크뤼 마을</b>들이 이어지고, 여기서 나온 포도는 샴페인에 뼈대와 힘을 줍니다. 크뤼그, 루이 로드레, 뤼나르의 셀러는 로마 시대에 채석장으로 판 백악질 지하 동굴에 수 킬로미터씩 뻗어 있습니다.</p>
+    </article>
 
-  <article>
-    <div class="tag">VALLÉE DE LA MARNE</div>
-    <h3>발레 드 라 마른 <small>강을 따라 · 피노 뫼니에</small></h3>
-    <p>마른 강을 따라 동서로 뻗은 계곡입니다. 서리가 잦은 강가 지형이라 늦게 싹트고 빨리 익는 <b>피노 뫼니에</b>가 주인공이 됐고, 이 품종은 샴페인에 부드러운 과일 향과 친근함을 줍니다. 계곡 동쪽 끝의 아이(Aÿ)는 볼랭저와 앙리 지로의 고향인 피노 누아 그랑 크뤼 마을이고, 오빌레르 수도원은 <b>수도사 동 페리뇽</b>이 와인을 만들던 곳입니다 — "별을 마시는 것 같다"는 전설과 함께. 에페르네 샹파뉴 대로의 지하에는 1억 병이 넘는 샴페인이 잠들어 있다고 합니다.</p>
-  </article>
+    <article class="rv">
+      <span class="tag">Vallée de la Marne</span>
+      <h3>발레 드 라 마른</h3>
+      <div class="sub">강을 따라 · 피노 뫼니에</div>
+      <p>마른 강을 따라 동서로 뻗은 계곡입니다. 서리가 잦은 강가 지형이라 늦게 싹트고 빨리 익는 <b>피노 뫼니에</b>가 주인공이 됐고, 이 품종은 샴페인에 부드러운 과일 향과 친근함을 줍니다. 계곡 동쪽 끝의 아이(Aÿ)는 볼랭저와 앙리 지로의 고향이고, 오빌레르 수도원은 <b>수도사 동 페리뇽</b>이 "별을 마시는 것 같다"던 와인을 만들던 곳입니다. 에페르네 샹파뉴 대로의 지하에는 1억 병이 넘는 샴페인이 잠들어 있다고 합니다.</p>
+    </article>
 
-  <article>
-    <div class="tag">CÔTE DES BLANCS</div>
-    <h3>코트 데 블랑 <small>백악의 언덕 · 샤르도네 100%</small></h3>
-    <p>에페르네 남쪽 언덕의 이름은 "화이트의 언덕" — 심긴 포도의 거의 전부가 <b>샤르도네</b>이기 때문입니다. 땅을 파면 순백의 초크(백악)가 나오는데, 이 토양이 물을 머금었다 내어주며 포도에 긴장감 있는 산미와 광물성을 새깁니다. 크라망, 아비즈, 오제, 르 메닐-쉬르-오제 — 그랑 크뤼 마을들이 줄지어 있고, 샤르도네만으로 만든 <b>블랑 드 블랑</b>의 최고봉이 여기서 나옵니다. 전설의 살롱과 그로워 샴페인의 신화 자크 셀로스가 모두 이 언덕 출신입니다. 젊을 때는 레몬처럼 날카롭다가 20년을 묵으면 브리오슈와 헤이즐넛 향으로 변하는, 시간의 마법을 가장 잘 보여주는 샴페인들입니다.</p>
-  </article>
+    <article class="rv">
+      <span class="tag">Côte des Blancs</span>
+      <h3>코트 데 블랑</h3>
+      <div class="sub">백악의 언덕 · 샤르도네 100%</div>
+      <p>에페르네 남쪽 언덕의 이름은 "화이트의 언덕" — 심긴 포도의 거의 전부가 <b>샤르도네</b>이기 때문입니다. 순백의 초크 토양이 물을 머금었다 내어주며 포도에 긴장감 있는 산미와 광물성을 새깁니다. 크라망, 아비즈, 오제, 르 메닐-쉬르-오제 — 그랑 크뤼 마을들이 줄지어 있고, <b>블랑 드 블랑</b>의 최고봉이 여기서 나옵니다. 전설의 살롱과 자크 셀로스가 모두 이 언덕 출신입니다.</p>
+    </article>
 
-  <article>
-    <div class="tag">CÔTE DE SÉZANNE</div>
-    <h3>코트 드 세잔 <small>조용한 연장선 · 떠오르는 별</small></h3>
-    <p>코트 데 블랑에서 습지를 하나 건너 남서쪽으로 이어지는 언덕입니다. 마찬가지로 샤르도네 중심이지만 좀 더 남향이라 <b>더 둥글고 과일 향이 풍부한</b> 스타일이 나옵니다. 오랫동안 대형 하우스에 포도를 공급하는 조용한 산지였는데, 울리스 콜랭이 이곳 단일 밭 샴페인으로 세계적 명성을 얻으며 "제2의 셀로스"라 불리기 시작했습니다. 아직 가격이 명성을 따라가기 전인, 눈 밝은 애호가들의 사냥터입니다.</p>
-  </article>
+    <article class="rv">
+      <span class="tag">Côte de Sézanne</span>
+      <h3>코트 드 세잔</h3>
+      <div class="sub">조용한 연장선 · 떠오르는 별</div>
+      <p>코트 데 블랑에서 습지를 하나 건너 남서쪽으로 이어지는 언덕입니다. 좀 더 남향이라 <b>더 둥글고 과일 향이 풍부한</b> 스타일이 나옵니다. 오랫동안 대형 하우스에 포도를 공급하는 조용한 산지였는데, 울리스 콜랭이 단일 밭 샴페인으로 세계적 명성을 얻으며 "제2의 셀로스"라 불리기 시작했습니다. 아직 가격이 명성을 따라가기 전인, 눈 밝은 애호가들의 사냥터입니다.</p>
+    </article>
 
-  <article>
-    <div class="tag">CÔTE DES BAR</div>
-    <h3>코트 데 바르 <small>남쪽의 반전 · 그로워들의 무대</small></h3>
-    <p>샹파뉴 본체에서 남쪽으로 100km 떨어진 오브(Aube) 지역입니다. 지질학적으로는 오히려 샤블리와 같은 <b>키메리지안 토양</b>이라 한때 "여기가 진짜 샹파뉴냐"는 서러운 논쟁(1911년 폭동까지)을 겪었습니다. 지금은 완전한 반전 — 햇살을 넉넉히 받은 <b>피노 누아</b>가 개성 강한 샴페인이 되고, 자연주의 그로워 운동의 중심지가 됐습니다. 세드릭 부샤르, 마리 쿠르탱, 뵈트 에 소르베 같은 이름들이 파리의 내추럴 와인 바를 점령 중입니다. 레 리세 마을은 프랑스에서 가장 희귀한 로제 '로제 데 리세'의 고향이기도 합니다.</p>
-  </article>
+    <article class="rv">
+      <span class="tag">Côte des Bar</span>
+      <h3>코트 데 바르</h3>
+      <div class="sub">남쪽의 반전 · 그로워들의 무대</div>
+      <p>샹파뉴 본체에서 남쪽으로 100km 떨어진 오브 지역입니다. 지질학적으로는 샤블리와 같은 <b>키메리지안 토양</b>이라 한때 "여기가 진짜 샹파뉴냐"는 논쟁(1911년 폭동까지)을 겪었습니다. 지금은 완전한 반전 — 햇살을 넉넉히 받은 <b>피노 누아</b>가 개성 강한 샴페인이 되고, 자연주의 그로워 운동의 중심지가 됐습니다. 세드릭 부샤르, 마리 쿠르탱, 뵈트 에 소르베가 파리의 내추럴 와인 바를 점령 중입니다.</p>
+    </article>
+  </div>
 
   <nav class="chapnav">
-    <a href="map.html" ><span class="dir">CARTE</span><span class="t">지도에서 밭 찾아보기</span><span class="arrow">→</span></a>
-    <a href="#ch2" onclick="show('ch2');return false"><span class="dir">PRÉCÉDENT</span><span class="t">부르고뉴 이야기</span><span class="arrow">←</span></a>
-    <a href="#home" onclick="show('home');return false"><span class="dir">SOMMAIRE</span><span class="t">목차</span><span class="arrow">↑</span></a>
+    <a href="map.html" class="rv">
+      <span class="dir chaplabel">La Carte</span>
+      <span class="t">지도에서 밭 찾기</span>
+    </a>
+    <a href="#home" onclick="show('home');return false" class="rv"><span class="small">(목차로 돌아가기)</span></a>
   </nav>
 </div>
 
@@ -286,13 +365,28 @@ function show(id) {
   VIEWS.forEach(v => { document.getElementById(v).hidden = v !== id; });
   history.replaceState(null, "", id === "home" ? "#" : "#" + id);
   window.scrollTo({ top: 0 });
+  requestAnimationFrame(observeAll);
   updatePg();
 }
-/* 해시로 직접 진입 지원 */
-const h = location.hash.replace("#", "");
-if (VIEWS.includes(h)) show(h);
 
-/* 헤더 진행률 (La Solana 스타일) */
+/* 스크롤 리빌 */
+let io = null;
+function observeAll() {
+  if (io) io.disconnect();
+  io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); }
+  }), { threshold: 0.12 });
+  document.querySelectorAll(".view:not([hidden]) .rv").forEach(el => {
+    el.classList.remove("on");
+    io.observe(el);
+  });
+}
+
+/* 해시 직접 진입 */
+const h = location.hash.replace("#", "");
+if (VIEWS.includes(h)) show(h); else observeAll();
+
+/* 진행률 */
 const pg = document.getElementById("pg");
 function updatePg() {
   const max = document.documentElement.scrollHeight - window.innerHeight;
