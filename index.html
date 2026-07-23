@@ -7,57 +7,68 @@
 <meta name="description" content="부르고뉴와 샹파뉴의 실제 밭 경계 지도에서 와인을 찾아보세요.">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; }
   body {
     font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
     background: #131016;
-    position: relative;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    overflow: hidden;
   }
+  .hero { position: relative; }
   .photo {
-    position: absolute; inset: 0;
-    background-image: url("assets/vineyard.jpg");
-    background-size: cover; background-position: center 38%;
+    display: block; width: 100%; height: auto;
+    filter: brightness(1.12) contrast(1.02);
   }
   .overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(to bottom, #13101699 0%, #13101640 45%, #131016cc 100%);
+    background: linear-gradient(to bottom,
+      #13101680 0%, #1310162e 30%, #13101600 55%, #13101699 100%);
   }
-  main { position: relative; z-index: 2; text-align: center; padding: 24px; }
+  main {
+    position: absolute; top: 0; left: 0; right: 0; height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 24px; z-index: 2;
+  }
   h1 {
     color: #f6f2f8; font-size: clamp(34px, 7vw, 60px); font-weight: 800;
     letter-spacing: 0.28em; text-indent: 0.28em; line-height: 1.2;
+    text-shadow: 0 2px 20px #00000066;
   }
   h1 span { color: #d1789f; }
   .line { width: 44px; height: 1px; background: #d9b96a; margin: 30px auto; }
   nav { display: flex; gap: 34px; justify-content: center; flex-wrap: wrap; }
   nav a {
-    color: #d9b96a; text-decoration: none; font-size: 15px;
+    color: #ecca79; text-decoration: none; font-size: 15px;
     letter-spacing: 0.2em; padding-bottom: 5px;
-    border-bottom: 1px solid #d9b96a55;
+    border-bottom: 1px solid #ecca7966;
+    text-shadow: 0 1px 10px #00000080;
     transition: border-color .15s, color .15s;
   }
-  nav a:hover { border-color: #d9b96a; color: #f2dfae; }
+  nav a:hover { border-color: #ecca79; color: #f7e5b5; }
+  .scroll-hint {
+    position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+    color: #ffffffaa; font-size: 20px; z-index: 2;
+    animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 8px); } }
   footer {
-    position: absolute; bottom: 16px; left: 0; right: 0; z-index: 2;
-    text-align: center; color: #ffffff66; font-size: 11px; letter-spacing: 0.08em;
+    padding: 20px 24px 26px; text-align: center;
+    color: #ffffff59; font-size: 12px; letter-spacing: 0.08em; line-height: 1.9;
   }
 </style>
 </head>
 <body>
-  <div class="photo"></div>
-  <div class="overlay"></div>
-  <main>
-    <h1>VIN <span>CARTE</span></h1>
-    <div class="line"></div>
-    <nav>
-      <a href="map.html">부르고뉴</a>
-      <a href="map.html#champagne">샹파뉴</a>
-      <a href="guide.html">가이드</a>
-    </nav>
-  </main>
+  <div class="hero">
+    <img class="photo" src="assets/vineyard.jpg" alt="로마네 콩티 밭의 십자가, 본-로마네">
+    <div class="overlay"></div>
+    <main>
+      <h1>VIN <span>CARTE</span></h1>
+      <div class="line"></div>
+      <nav>
+        <a href="map.html">부르고뉴</a>
+        <a href="map.html#champagne">샹파뉴</a>
+        <a href="guide.html">가이드</a>
+      </nav>
+      <div class="scroll-hint">↓</div>
+    </main>
+  </div>
   <footer>Romanée-Conti, Vosne-Romanée · 경계 데이터 INAO · 지도 © OpenStreetMap © CARTO</footer>
 </body>
 </html>
