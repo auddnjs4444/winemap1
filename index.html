@@ -245,7 +245,10 @@ function makeGeoLayer(fc) {
       layer.bindTooltip(label, { sticky: true, className: "region-tooltip" });
       // 지도 위에서 클릭할 땐 화면을 움직이지 않음 (fly=false)
       layer.on("click", () => selectRegion(sub, false));
-      layer.on("mouseover", () => layer.setStyle({ fillOpacity: 0.6 }));
+      layer.on("mouseover", () => {
+        layer.setStyle({ color: "#f7ead0", weight: 2.5, fillOpacity: 0.6 });
+        layer.bringToFront();
+      });
       layer.on("mouseout", () => layer.setStyle(styleFor(sub, selectedRegion === sub)));
       featureLayers.push({ layer, sub });
     }
