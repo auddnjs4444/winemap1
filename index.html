@@ -7,6 +7,8 @@
 <!-- Leaflet 지도 엔진 (오픈소스, 무료) -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Fuse.js: 오타 허용(퍼지) 검색 라이브러리 -->
+<script src="https://unpkg.com/fuse.js@7.0.0/dist/fuse.min.js"></script>
 <style>
   :root {
     --bg: #16121a;
@@ -109,6 +111,27 @@
   .t-rose .type-dot { background: #e8a0b4; }
   .wine-card .wdesc { font-size: 12px; color: var(--muted); margin-top: 6px; font-style: italic; }
   .empty { color: var(--muted); font-size: 13px; padding: 24px 0; text-align: center; }
+
+  /* 필터 칩 */
+  .filter-bar { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+  .fgroup { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .flabel { font-size: 11px; color: var(--muted); width: 40px; }
+  .fchip {
+    font-size: 12px; padding: 4px 12px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--panel2); color: var(--muted); cursor: pointer;
+  }
+  .fchip.active { background: var(--wine); border-color: var(--wine); color: #fff; }
+
+  /* 검색 자동완성 */
+  .suggest {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 10px;
+    z-index: 1200; overflow: hidden; display: none;
+    box-shadow: 0 6px 18px rgba(0,0,0,.45);
+  }
+  .suggest div { padding: 8px 12px; font-size: 13px; cursor: pointer; }
+  .suggest div:hover { background: var(--panel); }
+  .suggest span { color: var(--muted); font-size: 12px; }
 </style>
 </head>
 <body>
@@ -120,7 +143,8 @@
     <button id="tab-champagne">샹파뉴</button>
   </div>
   <div class="search-wrap">
-    <input id="search" type="text" placeholder="와인, 생산자, 품종, 아펠라시옹 검색… (전체 와인 대상)">
+    <input id="search" type="text" placeholder="와인, 생산자, 품종 검색… 오타도 괜찮아요" autocomplete="off">
+    <div class="suggest" id="suggest"></div>
   </div>
 </header>
 
@@ -131,6 +155,24 @@
   </div>
 
   <aside class="side">
+    <div class="filter-bar">
+      <div class="fgroup" data-filter="type">
+        <span class="flabel">타입</span>
+        <button class="fchip active" data-v="all">전체</button>
+        <button class="fchip" data-v="red">레드</button>
+        <button class="fchip" data-v="white">화이트</button>
+        <button class="fchip" data-v="sparkling">스파클링</button>
+        <button class="fchip" data-v="rose">로제</button>
+      </div>
+      <div class="fgroup" data-filter="price">
+        <span class="flabel">가격대</span>
+        <button class="fchip active" data-v="all">전체</button>
+        <button class="fchip" data-v="lt5">5만↓</button>
+        <button class="fchip" data-v="b515">5~15만</button>
+        <button class="fchip" data-v="b1550">15~50만</button>
+        <button class="fchip" data-v="gte50">50만↑</button>
+      </div>
+    </div>
     <div id="panel"></div>
   </aside>
 </main>
@@ -203,6 +245,44 @@ let WINES = [];  // data/wines.json 에서 로드 (3단계)
 
 const TYPE_LABEL = { red: "레드", white: "화이트", sparkling: "스파클링", rose: "로제" };
 
+/* ───────── 필터 (4단계) ───────── */
+const FILTERS = { type: "all", price: "all" };
+const PRICE_BUCKETS = {
+  lt5:   { test: n => n < 5 },
+  b515:  { test: n => n >= 5 && n < 15 },
+  b1550: { test: n => n >= 15 && n < 50 },
+  gte50: { test: n => n >= 50 }
+};
+function priceNum(w) {
+  const m = (w.price || "").match(/(\d+)\s*만/);
+  return m ? parseInt(m[1], 10) : null;
+}
+function applyFilters(list) {
+  return list.filter(w => {
+    if (FILTERS.type !== "all" && w.type !== FILTERS.type) return false;
+    if (FILTERS.price !== "all") {
+      const n = priceNum(w);
+      if (n === null || !PRICE_BUCKETS[FILTERS.price].test(n)) return false;
+    }
+    return true;
+  });
+}
+const filtersActive = () => FILTERS.type !== "all" || FILTERS.price !== "all";
+
+/* ───────── 퍼지 검색 (Fuse.js) ───────── */
+let fuse = null;
+function buildFuse() {
+  if (!window.Fuse) return;   // CDN 실패 시 기본 검색으로 동작
+  fuse = new Fuse(
+    WINES.map(w => ({ ...w, regionName: REGIONS[w.region] ? REGIONS[w.region].name : "" })),
+    {
+      keys: ["nameKo", "nameOrig", "producerKo", "producerOrig",
+             "appellation", "grape", "desc", "regionName"],
+      threshold: 0.34, ignoreLocation: true
+    }
+  );
+}
+
 let currentMap = "bourgogne";
 let selectedRegion = null;
 
@@ -272,6 +352,7 @@ Promise.all([
   geoLayers.bourgogne = makeGeoLayer(b);
   geoLayers.champagne = makeGeoLayer(c);
   WINES = wines;
+  buildFuse();
   showLayerFor(currentMap);
   renderHome();
 }).catch(() => {
@@ -309,7 +390,7 @@ function wineCard(w) {
 
 function renderRegion(id) {
   const r = REGIONS[id];
-  const wines = WINES.filter(w => w.region === id);
+  const wines = applyFilters(WINES.filter(w => w.region === id));
   panel.innerHTML = `
     <h2>${r.name}</h2>
     <p class="desc">${r.desc}</p>
@@ -318,23 +399,69 @@ function renderRegion(id) {
       <span class="badge">🌡 ${r.climate}</span>
       <span class="badge">⭐ ${r.famous}</span>
     </div>
-    <div class="count-note">이 지역 와인 ${wines.length}종</div>
-    ${wines.map(wineCard).join("")}`;
+    <div class="count-note">이 지역 와인 ${wines.length}종${filtersActive() ? " (필터 적용됨)" : ""}</div>
+    ${wines.length ? wines.map(wineCard).join("") : `<div class="empty">조건에 맞는 와인이 없습니다. 필터를 확인해보세요.</div>`}`;
 }
 
 function renderSearch(q) {
   const query = q.trim().toLowerCase();
-  const results = WINES.filter(w => {
-    const regionName = REGIONS[w.region] ? REGIONS[w.region].name : "";
-    return [w.nameKo, w.nameOrig, w.producerKo, w.producerOrig,
-            w.appellation, w.grape, w.desc, regionName, TYPE_LABEL[w.type]]
-      .join(" ").toLowerCase().includes(query);
-  });
+  let results;
+  if (fuse && query.length >= 2) {
+    // 퍼지 검색: 오타·부분 일치 허용, 유사도 순 정렬
+    results = fuse.search(query).map(r => r.item);
+  } else {
+    results = WINES.filter(w => {
+      const regionName = REGIONS[w.region] ? REGIONS[w.region].name : "";
+      return [w.nameKo, w.nameOrig, w.producerKo, w.producerOrig,
+              w.appellation, w.grape, w.desc, regionName, TYPE_LABEL[w.type]]
+        .join(" ").toLowerCase().includes(query);
+    });
+  }
+  results = applyFilters(results);
   panel.innerHTML = `
     <h2>검색 결과</h2>
-    <div class="count-note">"${q}" — ${results.length}종 (부르고뉴·샹파뉴 전체)</div>
+    <div class="count-note">"${q}" — ${results.length}종 (부르고뉴·샹파뉴 전체)${filtersActive() ? " · 필터 적용됨" : ""}</div>
     ${results.length ? results.map(wineCard).join("") : `<div class="empty">검색 결과가 없습니다.</div>`}`;
 }
+
+/* ───────── 검색 자동완성 ───────── */
+const suggestBox = document.getElementById("suggest");
+function updateSuggest(q) {
+  if (!fuse || q.trim().length < 2) { suggestBox.style.display = "none"; return; }
+  const top = fuse.search(q.trim()).slice(0, 6);
+  if (!top.length) { suggestBox.style.display = "none"; return; }
+  suggestBox.innerHTML = top.map(r =>
+    `<div data-name="${r.item.nameKo}">${r.item.nameKo} <span>· ${r.item.producerKo}</span></div>`).join("");
+  suggestBox.style.display = "block";
+}
+suggestBox.addEventListener("mousedown", e => {
+  const d = e.target.closest("div[data-name]");
+  if (!d) return;
+  searchInput.value = d.dataset.name;
+  suggestBox.style.display = "none";
+  highlightRegion(null);
+  selectedRegion = null;
+  renderSearch(d.dataset.name);
+});
+searchInput.addEventListener("blur", () => setTimeout(() => { suggestBox.style.display = "none"; }, 150));
+
+/* ───────── 필터 칩 동작 ───────── */
+function rerender() {
+  const q = searchInput.value.trim();
+  if (q) renderSearch(q);
+  else if (selectedRegion) renderRegion(selectedRegion);
+  else renderHome();
+}
+document.querySelectorAll(".fgroup").forEach(g => {
+  g.addEventListener("click", e => {
+    const btn = e.target.closest(".fchip");
+    if (!btn) return;
+    g.querySelectorAll(".fchip").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    FILTERS[g.dataset.filter] = btn.dataset.v;
+    rerender();
+  });
+});
 
 function renderHome() {
   const mapName = currentMap === "bourgogne" ? "부르고뉴" : "샹파뉴";
@@ -381,6 +508,7 @@ document.getElementById("tab-champagne").addEventListener("click", () => switchM
 
 searchInput.addEventListener("input", e => {
   const q = e.target.value;
+  updateSuggest(q);
   if (!q.trim()) {
     selectedRegion ? renderRegion(selectedRegion) : renderHome();
     return;
