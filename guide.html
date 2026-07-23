@@ -6,100 +6,86 @@
 <title>가이드 — Carte des Vins</title>
 <style>
   :root {
-    --bg: #f7f3ea; --panel: #fffdf7; --panel2: #f1eadb; --line: #e2d9c6;
-    --text: #33262c; --muted: #6f5f68; --wine: #8e2a3e; --wine-soft: #a94b62;
-    --gold: #8a6a1f;
+    --bg: #fbfaf8; --text: #211c1e; --muted: #8a8286;
+    --hair: #e7e3df; --accent: #8e2a3e;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     background: var(--bg); color: var(--text);
     font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-    line-height: 1.75;
+    line-height: 1.8; -webkit-font-smoothing: antialiased;
   }
   header {
-    padding: 20px 28px; border-bottom: 1px solid var(--line);
-    display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
-    position: sticky; top: 0; background: var(--bg); z-index: 10;
+    position: sticky; top: 0; z-index: 10;
+    background: #fbfaf8f2; backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--hair);
+    display: flex; align-items: baseline; gap: 28px;
+    padding: 18px 24px; max-width: 100%;
   }
-  header h1 { font-size: 20px; font-weight: 700; }
-  header h1 span { color: var(--wine-soft); }
-  .back {
-    padding: 8px 16px; border-radius: 10px; border: 1px solid var(--line);
-    color: var(--text); text-decoration: none; font-size: 14px; font-weight: 600;
+  .wordmark { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; color: var(--text); text-decoration: none; }
+  .wordmark span { color: var(--accent); }
+  header nav { margin-left: auto; display: flex; gap: 22px; }
+  header nav a { color: var(--muted); text-decoration: none; font-size: 13.5px; }
+  header nav a:hover { color: var(--accent); }
+
+  main { max-width: 640px; margin: 0 auto; padding: 64px 24px 100px; }
+
+  .eyebrow {
+    font-size: 11.5px; letter-spacing: 0.22em; color: var(--muted);
+    font-weight: 600; margin-bottom: 10px;
   }
-  .back:hover { border-color: var(--wine-soft); }
-  nav.toc { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
-  nav.toc a {
-    font-size: 12px; color: var(--muted); text-decoration: none;
-    padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line);
-    background: var(--panel);
-  }
-  nav.toc a:hover { color: #fff; background: var(--wine); border-color: var(--wine); }
+  h2 { font-size: 25px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 14px; scroll-margin-top: 80px; }
+  .intro { color: var(--muted); font-size: 15px; margin-bottom: 8px; }
 
-  main { max-width: 860px; margin: 0 auto; padding: 36px 24px 80px; }
-  h2 {
-    font-size: 24px; margin: 48px 0 8px; color: var(--gold);
-    scroll-margin-top: 90px;
-  }
-  h2:first-child { margin-top: 0; }
-  h3 { font-size: 18px; margin: 32px 0 6px; scroll-margin-top: 90px; }
-  h3 .orig { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 6px; }
-  p { font-size: 15px; margin-bottom: 14px; color: var(--text); }
-  p.lead { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
-  .tagline { color: var(--wine-soft); font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  section.block { border-top: 1px solid var(--hair); margin-top: 56px; padding-top: 48px; }
+  section.block:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
 
-  .card {
-    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
-    padding: 24px 26px; margin-bottom: 18px;
-    box-shadow: 0 1px 3px rgba(70, 45, 30, 0.06);
-  }
+  article { margin-top: 44px; }
+  article .tag { font-size: 11.5px; letter-spacing: 0.18em; color: var(--accent); font-weight: 600; }
+  h3 { font-size: 19px; font-weight: 700; margin: 8px 0 10px; scroll-margin-top: 80px; }
+  h3 small { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 8px; letter-spacing: 0.02em; }
+  p { font-size: 15.5px; margin-bottom: 14px; }
+  p b { font-weight: 700; }
 
-  /* 등급 피라미드 */
-  .pyramid { margin: 20px 0 8px; }
-  .pyr-row {
-    margin: 0 auto 6px; padding: 10px 14px; border-radius: 8px;
-    text-align: center; font-size: 13px; font-weight: 600; color: #fff;
-  }
-  .pyr-row small { display: block; font-weight: 400; font-size: 11px; opacity: 0.85; }
-  .pyr-1 { width: 34%; background: #8a2352; min-width: 210px; }
-  .pyr-2 { width: 52%; background: #a04a6e; min-width: 240px; }
-  .pyr-3 { width: 74%; background: #7a5a8a; }
-  .pyr-4 { width: 96%; background: #4a4258; }
+  /* 등급 피라미드 — 모노크롬 */
+  .pyramid { margin: 26px 0 10px; }
+  .tier { display: flex; align-items: baseline; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--hair); }
+  .tier:first-child { border-top: 1px solid var(--hair); }
+  .tier .bar { height: 8px; background: #d9d4cf; flex: none; }
+  .tier.t1 .bar { width: 26px; background: var(--accent); }
+  .tier.t2 .bar { width: 62px; }
+  .tier.t3 .bar { width: 120px; }
+  .tier.t4 .bar { width: 190px; }
+  .tier .name { font-size: 14px; font-weight: 700; white-space: nowrap; }
+  .tier .pct { font-size: 12.5px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+  .tier .ex { font-size: 12.5px; color: var(--muted); }
+  .pyr-note { font-size: 13px; color: var(--muted); margin-top: 10px; }
 
-  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
-  th, td { padding: 8px 10px; border: 1px solid var(--line); text-align: left; }
-  th { background: var(--panel2); color: var(--gold); }
-  td { color: var(--text); }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 18px 0 6px; }
+  th { text-align: left; font-size: 12px; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; padding: 0 10px 8px 0; border-bottom: 1px solid var(--text); }
+  td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--hair); vertical-align: top; }
+  td:first-child { font-weight: 700; white-space: nowrap; }
 
-  .divider { border: none; border-top: 1px solid var(--line); margin: 52px 0; }
-
-  /* ── 모바일 최적화 ── */
   @media (max-width: 640px) {
-    header { padding: 14px 16px; gap: 10px; }
-    header h1 { font-size: 17px; }
-    .back { padding: 7px 12px; font-size: 13px; }
-    nav.toc { margin-left: 0; width: 100%; }
-    nav.toc a { font-size: 12px; padding: 5px 10px; }
-    main { padding: 24px 16px 60px; }
-    h2 { font-size: 21px; margin-top: 36px; }
-    h3 { font-size: 17px; }
-    .card { padding: 18px 16px; }
-    .pyr-1 { min-width: 0; width: 52%; }
-    .pyr-2 { min-width: 0; width: 68%; }
-    .pyr-3 { width: 84%; }
-    table { font-size: 12px; }
-    th, td { padding: 6px 7px; }
+    header { padding: 14px 16px; gap: 16px; }
+    main { padding: 44px 20px 80px; }
+    h2 { font-size: 22px; }
+    .tier { gap: 10px; }
+    .tier.t4 .bar { width: 120px; }
+    .tier.t3 .bar { width: 84px; }
+    .tier.t2 .bar { width: 48px; }
+    .tier .ex { display: none; }
+    table { font-size: 13px; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Carte des <span>Vins</span> 가이드</h1>
-  <a class="back" href="index.html">🏠 홈</a>
-  <a class="back" href="map.html">🗺 지도</a>
-  <nav class="toc">
-    <a href="#grades">등급 체계</a>
+  <a class="wordmark" href="index.html">Carte des <span>Vins</span></a>
+  <nav>
+    <a href="map.html">지도</a>
+    <a href="#grades">등급</a>
     <a href="#bourgogne">부르고뉴</a>
     <a href="#champagne">샹파뉴</a>
   </nav>
@@ -107,104 +93,108 @@
 
 <main>
 
-<h2 id="grades">등급 체계 이해하기</h2>
-<p class="lead">부르고뉴와 샹파뉴는 등급을 매기는 방식이 서로 다릅니다. 부르고뉴는 "밭"에, 샹파뉴는 "마을"에 등급을 매겨요. 이것만 이해해도 라벨의 절반이 읽힙니다.</p>
+<section class="block" id="grades">
+  <div class="eyebrow">CLASSIFICATION</div>
+  <h2>등급 체계 이해하기</h2>
+  <p class="intro">부르고뉴는 밭에, 샹파뉴는 마을에 등급을 매깁니다. 이것만 이해해도 라벨의 절반이 읽힙니다.</p>
 
-<div class="card">
-  <h3>부르고뉴 — 밭(클리마)의 피라미드</h3>
-  <p>부르고뉴에서는 수백 년 동안 수도사들이 밭 한 뙈기 한 뙈기의 개성을 기록해왔고, 그 결과 <b>밭 자체에 등급이 붙는</b> 독특한 체계가 만들어졌습니다. 같은 생산자가 만들어도 밭이 다르면 등급과 가격이 완전히 달라져요. 이 밭 구획을 <b>클리마(climat)</b>라고 부르며, 2015년 유네스코 세계유산으로 등재됐습니다.</p>
-  <div class="pyramid">
-    <div class="pyr-row pyr-1">그랑 크뤼 Grand Cru <small>전체 생산의 약 1% · 몽라셰, 샹베르탱 등 33개 — 라벨에 밭 이름만 적힘</small></div>
-    <div class="pyr-row pyr-2">프르미에 크뤼 Premier Cru <small>약 10% · "마을 + 1er Cru + 밭 이름" (예: Meursault 1er Cru Perrières)</small></div>
-    <div class="pyr-row pyr-3">빌라주 Village <small>약 37% · 마을 이름이 곧 와인 이름 (예: Gevrey-Chambertin, Chablis)</small></div>
-    <div class="pyr-row pyr-4">레지오날 Régionale <small>약 52% · 지역 전체 명칭 (예: Bourgogne Rouge, Bourgogne Aligoté)</small></div>
-  </div>
-  <p>라벨 읽는 요령: 이름이 <b>짧고 낯설수록 등급이 높습니다.</b> "Montrachet"처럼 밭 이름 하나만 있으면 그랑 크뤼, "Bourgogne"처럼 넓은 지역명이면 입문 등급이에요. 지도에서 <b>진하게 칠해진 작은 밭</b>들이 바로 그랑 크뤼입니다.</p>
-</div>
+  <article>
+    <h3>부르고뉴 <small>밭(클리마)의 피라미드</small></h3>
+    <p>수백 년 동안 수도사들이 밭 한 뙈기의 개성을 기록해 온 결과, <b>밭 자체에 등급이 붙는</b> 체계가 만들어졌습니다. 같은 생산자가 만들어도 밭이 다르면 등급과 가격이 완전히 달라집니다. 이 밭 구획을 <b>클리마(climat)</b>라 부르며, 2015년 유네스코 세계유산으로 등재됐습니다.</p>
+    <div class="pyramid">
+      <div class="tier t1"><span class="bar"></span><span class="name">그랑 크뤼</span><span class="ex">몽라셰, 샹베르탱 — 밭 이름만 적힘</span><span class="pct">약 1%</span></div>
+      <div class="tier t2"><span class="bar"></span><span class="name">프르미에 크뤼</span><span class="ex">마을 + 1er Cru + 밭 이름</span><span class="pct">약 10%</span></div>
+      <div class="tier t3"><span class="bar"></span><span class="name">빌라주</span><span class="ex">마을 이름이 곧 와인 이름</span><span class="pct">약 37%</span></div>
+      <div class="tier t4"><span class="bar"></span><span class="name">레지오날</span><span class="ex">Bourgogne 등 지역 명칭</span><span class="pct">약 52%</span></div>
+    </div>
+    <p class="pyr-note">라벨 읽는 요령: 이름이 짧고 낯설수록 등급이 높습니다. "Montrachet"처럼 밭 이름 하나면 그랑 크뤼, "Bourgogne"처럼 넓은 지역명이면 입문 등급입니다.</p>
+  </article>
 
-<div class="card">
-  <h3>샹파뉴 — 마을의 등급과 퀴베의 위계</h3>
-  <p>샹파뉴는 아펠라시옹이 <b>"Champagne" 단 하나</b>입니다. 대신 두 가지 축으로 급이 나뉘어요.</p>
-  <p><b>① 마을 등급</b> — 포도가 자란 마을에 등급이 붙습니다. 최고 등급인 <b>그랑 크뤼 마을이 17곳</b>(부지, 베르즈네, 아이, 크라망, 아비즈, 르 메닐-쉬르-오제 등), 그다음 <b>프르미에 크뤼 마을이 42곳</b>입니다. 라벨에 "Grand Cru"가 있으면 그랑 크뤼 마을 포도 100%라는 뜻이에요.</p>
-  <p><b>② 퀴베의 위계</b> — 같은 하우스 안에서도 급이 나뉩니다:</p>
-  <table>
-    <tr><th>단계</th><th>설명</th><th>예시</th></tr>
-    <tr><td>논빈티지(NV)</td><td>여러 해 포도를 블렌딩. 하우스 스타일의 기본기</td><td>뵈브 클리코 옐로 라벨</td></tr>
-    <tr><td>빈티지</td><td>작황 좋은 해에만, 그 해 포도 100%</td><td>폴 로저 빈티지</td></tr>
-    <tr><td>프레스티지 퀴베</td><td>하우스 최고의 밭·최고의 해·최장 숙성</td><td>돔 페리뇽, 크리스탈, 크뤼그</td></tr>
-  </table>
-  <p>하나 더 — 라벨 구석의 작은 글자로 <b>NM</b>(네고시앙, 포도를 사서 만드는 대형 하우스)과 <b>RM</b>(레콜탕, 자기 밭 포도로만 만드는 소규모 생산자)을 구분할 수 있습니다. 최근 전 세계 애호가들이 열광하는 "그로워 샴페인"이 바로 RM이에요. 셀로스, 에글리-우리에, 울리스 콜랭 같은 이름들입니다.</p>
-</div>
+  <article>
+    <h3>샹파뉴 <small>마을의 등급과 퀴베의 위계</small></h3>
+    <p>샹파뉴는 아펠라시옹이 <b>"Champagne" 단 하나</b>입니다. 대신 두 가지 축으로 급이 나뉩니다.</p>
+    <p><b>마을 등급</b> — 포도가 자란 마을에 등급이 붙습니다. 그랑 크뤼 마을 17곳(부지, 베르즈네, 아이, 크라망, 아비즈, 르 메닐-쉬르-오제 등), 프르미에 크뤼 마을 42곳. 라벨에 "Grand Cru"가 있으면 그랑 크뤼 마을 포도 100%라는 뜻입니다.</p>
+    <table>
+      <tr><th>단계</th><th>설명</th><th>예시</th></tr>
+      <tr><td>논빈티지</td><td>여러 해 포도를 블렌딩한 하우스의 기본기</td><td>뵈브 클리코 옐로 라벨</td></tr>
+      <tr><td>빈티지</td><td>작황 좋은 해에만, 그 해 포도 100%</td><td>폴 로저 빈티지</td></tr>
+      <tr><td>프레스티지</td><td>최고의 밭 · 최고의 해 · 최장 숙성</td><td>돔 페리뇽, 크리스탈, 크뤼그</td></tr>
+    </table>
+    <p>라벨 구석의 작은 글자 <b>NM</b>(포도를 사서 만드는 대형 하우스)과 <b>RM</b>(자기 밭 포도로만 만드는 소규모 생산자)도 구분 포인트입니다. 요즘 전 세계 애호가들이 열광하는 "그로워 샴페인"이 바로 RM — 셀로스, 에글리-우리에, 울리스 콜랭 같은 이름들입니다.</p>
+  </article>
+</section>
 
-<hr class="divider">
+<section class="block" id="bourgogne">
+  <div class="eyebrow">BOURGOGNE</div>
+  <h2>부르고뉴 이야기</h2>
+  <p class="intro">디종에서 리옹 방향으로 이어지는 좁고 긴 언덕. 세계에서 가장 비싼 와인들이 여기서 나옵니다. 북쪽부터 차례로.</p>
 
-<h2 id="bourgogne">부르고뉴 이야기</h2>
-<p class="lead">파리에서 남동쪽으로 300km, 디종에서 리옹 방향으로 이어지는 좁고 긴 언덕. 세계에서 가장 비싼 와인들이 이 언덕에서 나옵니다. 북쪽부터 차례로 내려가 볼게요.</p>
+  <article>
+    <div class="tag">CHABLIS</div>
+    <h3>샤블리 <small>부르고뉴 최북단 · 샤르도네</small></h3>
+    <p>부르고뉴 본체에서 뚝 떨어져 파리 쪽으로 치우친 외딴 산지입니다. 비밀은 발밑에 있습니다 — <b>1억 5천만 년 전 바다였던 키메리지안 석회 토양</b>에는 굴 껍질 화석이 지금도 박혀 있습니다. 그래서 샤블리의 샤르도네는 부싯돌과 바다 향이 감도는, 세계에서 가장 날카롭고 미네랄한 화이트가 됩니다. 등급은 쁘띠 샤블리부터 그랑 크뤼까지 네 단계로, 그랑 크뤼는 세렝 강 오른쪽 언덕 하나에 모인 7개 클리마(레 클로, 부그로, 발뮈르 등)뿐입니다. 굴 요리와의 궁합은 전설적입니다.</p>
+  </article>
 
-<div class="card">
-  <div class="tagline">부르고뉴 최북단 · 샤르도네 · 미네랄</div>
-  <h3>샤블리 <span class="orig">Chablis</span></h3>
-  <p>부르고뉴 본체에서 뚝 떨어져 파리 쪽으로 치우친 외딴 산지입니다. 이 땅의 비밀은 발밑에 있어요 — <b>1억 5천만 년 전 바다였던 키메리지안 석회 토양</b>에는 굴 껍질 화석이 지금도 박혀 있습니다. 그래서 샤블리의 샤르도네는 부싯돌과 바다 향이 감도는, 세계에서 가장 날카롭고 미네랄한 화이트가 됩니다. 중세 퐁티니 수도원의 수도사들이 처음 포도를 심었고, 지금은 쁘띠 샤블리 → 샤블리 → 프르미에 크뤼 → 그랑 크뤼로 등급이 나뉩니다. 그랑 크뤼는 세렝 강 오른쪽 언덕 하나에 모여 있는 7개 클리마(레 클로, 부그로, 발뮈르 등)뿐이에요. 굴이나 조개 요리와의 궁합은 전설적입니다.</p>
-</div>
+  <article>
+    <div class="tag">CÔTE DE NUITS</div>
+    <h3>코트 드 뉘 <small>황금 언덕의 북쪽 · 피노 누아</small></h3>
+    <p>디종 남쪽부터 뉘-생-조르주까지 약 20km, 폭은 좁은 곳이 200m밖에 안 되는 가느다란 언덕. 이 좁은 띠 안에 로마네 콩티, 샹베르탱, 뮈지니 — <b>세계에서 가장 비싼 레드 와인 밭들이 밀집</b>해 있습니다. 주브레-샹베르탱, 샹볼-뮈지니, 본-로마네 같은 마을 이름 하나하나가 애호가들에게는 순례 코스입니다. 나폴레옹이 샹베르탱만 마셨다는 일화, 수도사들이 쌓은 돌담(클로)까지 — 같은 피노 누아가 밭마다 다른 향이 되는 "테루아"를 몸으로 이해하게 되는 곳입니다.</p>
+  </article>
 
-<div class="card">
-  <div class="tagline">황금 언덕의 북쪽 · 피노 누아의 성지</div>
-  <h3>코트 드 뉘 <span class="orig">Côte de Nuits</span></h3>
-  <p>디종 남쪽부터 뉘-생-조르주까지 약 20km, 폭은 좁은 곳이 200m밖에 안 되는 가느다란 언덕입니다. 이 좁은 띠 안에 로마네 콩티, 샹베르탱, 뮈지니 — <b>세계에서 가장 비싼 레드 와인 밭들이 밀집</b>해 있어요. 부르고뉴 그랑 크뤼 레드의 대부분이 이곳에 있습니다. 주브레-샹베르탱, 모레-생-드니, 샹볼-뮈지니, 부조, 본-로마네, 뉘-생-조르주 — 마을 이름 하나하나가 애호가들에게는 성지 순례 코스예요. 나폴레옹이 샹베르탱만 마셨다는 일화, 수도사들이 밭 사이에 쌓은 돌담(클로) 등 이야기도 무궁무진합니다. 같은 피노 누아인데 마을마다, 밭마다 향이 달라지는 "테루아"라는 개념을 몸으로 이해하게 되는 곳입니다.</p>
-</div>
+  <article>
+    <div class="tag">CÔTE DE BEAUNE</div>
+    <h3>코트 드 본 <small>황금 언덕의 남쪽 · 화이트의 정점</small></h3>
+    <p>언덕이 남쪽으로 이어지며 분위기가 바뀝니다. 볼네의 우아함, 포마르의 힘 같은 레드도 훌륭하지만 이곳의 왕관은 <b>화이트</b>입니다. 몽라셰, 코르통-샤를마뉴, 뫼르소 — 세계 최고가의 화이트가 전부 이 구간에서 나옵니다. 퓔리니와 샤사뉴 두 마을에 걸친 몽라셰 언덕에는 "신이 마시는 와인"이라는 수식이 따라다닙니다. 중심 도시 본의 오스피스 드 본에서는 550년 넘게 이어진 세계에서 가장 오래된 자선 와인 경매가 매년 11월 열립니다.</p>
+  </article>
 
-<div class="card">
-  <div class="tagline">황금 언덕의 남쪽 · 화이트의 정점</div>
-  <h3>코트 드 본 <span class="orig">Côte de Beaune</span></h3>
-  <p>코트 드 뉘에서 언덕이 남쪽으로 이어지며 분위기가 바뀝니다. 레드도 훌륭하지만(볼네의 우아함, 포마르의 힘), 이곳의 왕관은 <b>화이트</b>예요. 몽라셰, 코르통-샤를마뉴, 뫼르소 — 세계 최고가의 화이트 와인들이 전부 이 구간에서 나옵니다. 특히 퓔리니와 샤사뉴 두 마을에 걸친 몽라셰 언덕은 "신이 마시는 와인"이라는 수식이 따라다녀요. 중심 도시 본(Beaune)에는 15세기 자선 병원 오스피스 드 본이 있는데, 매년 11월 이곳에서 열리는 와인 경매는 550년 넘게 이어진 세계에서 가장 오래된 자선 경매입니다.</p>
-</div>
+  <article>
+    <div class="tag">CÔTE CHALONNAISE</div>
+    <h3>코트 샬로네즈 <small>가성비의 보고</small></h3>
+    <p>황금 언덕이 끝나고 이어지는 야트막한 구릉지대. 그랑 크뤼는 없지만 그래서 <b>부르고뉴에서 가장 합리적인 가격</b>이 있습니다. 레드의 메르퀴레와 지브리(앙리 4세가 사랑한 와인), 화이트의 륄리와 몽타니, 알리고테 품종만을 위한 유일한 마을 AOC 부즈롱까지 다섯 마을이 주인공입니다. 코트 드 본의 유명 도멘들이 밭을 사들이며 품질이 빠르게 오르는 중이라, "아는 사람만 아는" 시기가 지나가고 있습니다. 입문자에게 가장 먼저 권하고 싶은 지역입니다.</p>
+  </article>
 
-<div class="card">
-  <div class="tagline">가성비의 보고 · 숨은 명가들</div>
-  <h3>코트 샬로네즈 <span class="orig">Côte Chalonnaise</span></h3>
-  <p>황금 언덕이 끝나고 이어지는 야트막한 구릉지대. 그랑 크뤼는 없지만 그래서 <b>부르고뉴에서 가장 합리적인 가격</b>이 있는 곳입니다. 다섯 마을이 주인공이에요 — 레드의 메르퀴레와 지브리(앙리 4세가 사랑한 와인), 화이트의 륄리와 몽타니, 그리고 알리고테 품종만을 위한 유일한 마을 AOC 부즈롱. 코트 드 본의 유명 도멘들이 이곳에 밭을 사들이며 품질이 빠르게 올라가고 있어서, "아는 사람만 아는" 시기가 지나가는 중입니다. 부르고뉴 입문자에게 가장 먼저 권하고 싶은 지역이에요.</p>
-</div>
+  <article>
+    <div class="tag">MÂCONNAIS</div>
+    <h3>마코네 <small>부르고뉴의 남쪽 끝 · 햇살의 샤르도네</small></h3>
+    <p>남프랑스의 기운이 느껴지는 온화한 언덕지대입니다. 로마네스크 성당들이 점점이 박힌 풍경 속에서 <b>풍만하고 너그러운 샤르도네</b>가 자랍니다. 스타는 푸이-퓌세 — 선사시대 유적지 솔뤼트레 바위 절벽 아래 원형극장처럼 펼쳐진 밭에서, 잘 익은 과일과 크림 향의 화이트가 나옵니다. 2020년 프르미에 크뤼 22곳이 새로 지정되며 위상이 올라갔습니다. 생-베랑, 비레-클레세, 마콩-빌라주는 "1/3 가격의 부르고뉴 화이트"라 불릴 만큼 실속 있습니다.</p>
+  </article>
+</section>
 
-<div class="card">
-  <div class="tagline">부르고뉴의 남쪽 끝 · 햇살의 샤르도네</div>
-  <h3>마코네 <span class="orig">Mâconnais</span></h3>
-  <p>남프랑스의 기운이 느껴지기 시작하는 온화한 언덕지대입니다. 로마네스크 성당들이 점점이 박힌 목가적 풍경 속에서 <b>풍만하고 너그러운 스타일의 샤르도네</b>가 자랍니다. 스타는 단연 푸이-퓌세 — 선사시대 유적지인 솔뤼트레 바위 절벽 아래 원형극장처럼 펼쳐진 밭에서 나오는, 잘 익은 과일과 크림 향의 화이트입니다. 2020년에는 푸이-퓌세에 프르미에 크뤼 22곳이 새로 지정되며 위상이 한층 올라갔어요. 생-베랑, 비레-클레세, 마콩-빌라주는 "1/3 가격의 부르고뉴 화이트"라는 별명으로 불릴 만큼 실속 있습니다.</p>
-</div>
+<section class="block" id="champagne">
+  <div class="eyebrow">CHAMPAGNE</div>
+  <h2>샹파뉴 이야기</h2>
+  <p class="intro">파리 동쪽 150km, 포도가 익기에 아슬아슬하게 서늘한 땅. 그 한계가 세계에서 가장 축제적인 와인을 만들었습니다.</p>
 
-<hr class="divider">
+  <article>
+    <div class="tag">MONTAGNE DE REIMS</div>
+    <h3>몽타뉴 드 랭스 <small>샹파뉴의 심장 · 피노 누아</small></h3>
+    <p>랭스와 에페르네 사이, 숲을 머리에 인 말발굽 모양의 언덕입니다. 역대 프랑스 왕 33명이 대관식을 올린 랭스 대성당의 도시답게 샹파뉴의 역사와 자부심 그 자체입니다. 언덕 사면을 따라 <b>베르즈네, 부지, 앙보네 같은 피노 누아 그랑 크뤼 마을</b>들이 이어지고, 여기서 나온 포도는 샴페인에 뼈대와 힘을 줍니다. 크뤼그, 루이 로드레, 뤼나르의 셀러는 로마 시대에 채석장으로 판 랭스의 백악질 지하 동굴(크레예르)에 수 킬로미터씩 뻗어 있습니다. 2천 년 된 구덩이에서 샴페인이 익어가는 셈입니다.</p>
+  </article>
 
-<h2 id="champagne">샹파뉴 이야기</h2>
-<p class="lead">파리 동쪽 150km, 포도가 익기에 아슬아슬하게 서늘한 땅. 그 한계가 오히려 세계에서 가장 축제적인 와인을 만들었습니다.</p>
+  <article>
+    <div class="tag">VALLÉE DE LA MARNE</div>
+    <h3>발레 드 라 마른 <small>강을 따라 · 피노 뫼니에</small></h3>
+    <p>마른 강을 따라 동서로 뻗은 계곡입니다. 서리가 잦은 강가 지형이라 늦게 싹트고 빨리 익는 <b>피노 뫼니에</b>가 주인공이 됐고, 이 품종은 샴페인에 부드러운 과일 향과 친근함을 줍니다. 계곡 동쪽 끝의 아이(Aÿ)는 볼랭저와 앙리 지로의 고향인 피노 누아 그랑 크뤼 마을이고, 오빌레르 수도원은 <b>수도사 동 페리뇽</b>이 와인을 만들던 곳입니다 — "별을 마시는 것 같다"는 전설과 함께. 에페르네 샹파뉴 대로의 지하에는 1억 병이 넘는 샴페인이 잠들어 있다고 합니다.</p>
+  </article>
 
-<div class="card">
-  <div class="tagline">샹파뉴의 심장 · 피노 누아</div>
-  <h3>몽타뉴 드 랭스 <span class="orig">Montagne de Reims</span></h3>
-  <p>랭스와 에페르네 사이, 숲을 머리에 인 말발굽 모양의 언덕입니다. 역대 프랑스 왕 33명이 대관식을 올린 랭스 대성당의 도시답게, 이 지역은 샹파뉴의 역사와 자부심 그 자체예요. 언덕 사면을 따라 <b>베르즈네, 부지, 앙보네 같은 피노 누아 그랑 크뤼 마을</b>들이 이어지며, 여기서 나온 포도는 샴페인에 뼈대와 힘을 줍니다. 크뤼그, 루이 로드레, 뤼나르 같은 대형 하우스의 셀러가 랭스의 백악질 지하 동굴(크레예르)에 수 킬로미터씩 뻗어 있는데, 이 서늘한 동굴은 로마 시대에 채석장으로 판 것입니다. 2천 년 된 구덩이에서 샴페인이 익어가는 셈이죠.</p>
-</div>
+  <article>
+    <div class="tag">CÔTE DES BLANCS</div>
+    <h3>코트 데 블랑 <small>백악의 언덕 · 샤르도네 100%</small></h3>
+    <p>에페르네 남쪽 언덕의 이름은 "화이트의 언덕" — 심긴 포도의 거의 전부가 <b>샤르도네</b>이기 때문입니다. 땅을 파면 순백의 초크(백악)가 나오는데, 이 토양이 물을 머금었다 내어주며 포도에 긴장감 있는 산미와 광물성을 새깁니다. 크라망, 아비즈, 오제, 르 메닐-쉬르-오제 — 그랑 크뤼 마을들이 줄지어 있고, 샤르도네만으로 만든 <b>블랑 드 블랑</b>의 최고봉이 여기서 나옵니다. 전설의 살롱과 그로워 샴페인의 신화 자크 셀로스가 모두 이 언덕 출신입니다. 젊을 때는 레몬처럼 날카롭다가 20년을 묵으면 브리오슈와 헤이즐넛 향으로 변하는, 시간의 마법을 가장 잘 보여주는 샴페인들입니다.</p>
+  </article>
 
-<div class="card">
-  <div class="tagline">강을 따라 · 피노 뫼니에</div>
-  <h3>발레 드 라 마른 <span class="orig">Vallée de la Marne</span></h3>
-  <p>마른 강을 따라 동서로 길게 뻗은 계곡입니다. 서리가 자주 내리는 강가 지형이라, 늦게 싹트고 빨리 익는 <b>피노 뫼니에</b>가 주인공이 됐어요. 뫼니에는 샴페인에 부드러운 과일 향과 친근함을 줍니다. 계곡 동쪽 끝의 아이(Aÿ)는 피노 누아 그랑 크뤼 마을로 볼랭저와 앙리 지로의 고향이고, 강 언덕의 오빌레르 수도원은 <b>수도사 동 페리뇽</b>이 와인을 만들던 곳입니다 — "별을 마시는 것 같다"는 그 전설과 함께요. 에페르네의 샹파뉴 대로(Avenue de Champagne)에는 모엣 & 샹동, 폴 로저 등의 저택이 늘어서 있는데, 그 지하에 1억 병이 넘는 샴페인이 잠들어 있다고 합니다.</p>
-</div>
+  <article>
+    <div class="tag">CÔTE DE SÉZANNE</div>
+    <h3>코트 드 세잔 <small>조용한 연장선 · 떠오르는 별</small></h3>
+    <p>코트 데 블랑에서 습지를 하나 건너 남서쪽으로 이어지는 언덕입니다. 마찬가지로 샤르도네 중심이지만 좀 더 남향이라 <b>더 둥글고 과일 향이 풍부한</b> 스타일이 나옵니다. 오랫동안 대형 하우스에 포도를 공급하는 조용한 산지였는데, 울리스 콜랭이 이곳 단일 밭 샴페인으로 세계적 명성을 얻으며 "제2의 셀로스"라 불리기 시작했습니다. 아직 가격이 명성을 따라가기 전인, 눈 밝은 애호가들의 사냥터입니다.</p>
+  </article>
 
-<div class="card">
-  <div class="tagline">백악의 언덕 · 샤르도네 100%</div>
-  <h3>코트 데 블랑 <span class="orig">Côte des Blancs</span></h3>
-  <p>에페르네 남쪽으로 뻗은 이 언덕의 이름은 "화이트의 언덕" — 심겨 있는 포도의 거의 전부가 <b>샤르도네</b>이기 때문입니다. 땅을 파면 순백의 초크(백악)가 나오는데, 이 토양이 물을 머금었다 내어주며 포도에 긴장감 있는 산미와 광물성을 새깁니다. 크라망, 아비즈, 오제, 르 메닐-쉬르-오제 — 언덕을 따라 그랑 크뤼 마을들이 줄지어 있고, 샤르도네만으로 만든 <b>블랑 드 블랑</b> 샴페인의 최고봉이 여기서 나옵니다. 전설의 살롱, 그로워 샴페인의 신화 자크 셀로스가 모두 이 언덕 출신이에요. 젊을 때는 레몬처럼 날카롭다가 20년을 묵으면 구운 브리오슈와 헤이즐넛 향으로 변하는, 시간의 마법을 가장 잘 보여주는 샴페인들입니다.</p>
-</div>
-
-<div class="card">
-  <div class="tagline">조용한 연장선 · 떠오르는 별</div>
-  <h3>코트 드 세잔 <span class="orig">Côte de Sézanne</span></h3>
-  <p>코트 데 블랑에서 습지를 하나 건너 남서쪽으로 이어지는 언덕입니다. 마찬가지로 샤르도네 중심이지만 좀 더 남향이라 <b>더 둥글고 과일 향이 풍부한</b> 스타일이 나와요. 오랫동안 대형 하우스에 포도를 공급하는 조용한 산지였는데, 울리스 콜랭이라는 그로워가 이곳 단일 밭 샴페인으로 세계적 명성을 얻으며 "제2의 셀로스"라 불리기 시작했고, 덕분에 지도에서 다시 조명받고 있습니다. 아직 가격이 명성을 따라가기 전인, 눈 밝은 애호가들의 사냥터예요.</p>
-</div>
-
-<div class="card">
-  <div class="tagline">남쪽의 반전 · 그로워들의 무대</div>
-  <h3>코트 데 바르 <span class="orig">Côte des Bar</span></h3>
-  <p>샹파뉴 본체에서 남쪽으로 100km 떨어진 오브(Aube) 지역입니다. 지질학적으로는 오히려 샤블리와 같은 <b>키메리지안 토양</b>이라, 한때 "여기가 진짜 샹파뉴냐"는 서러운 논쟁(1911년 폭동까지 있었죠)을 겪었어요. 하지만 지금은 완전한 반전 — 햇살을 넉넉히 받은 <b>피노 누아</b>가 개성 강한 샴페인을 만들고, 자연주의 그로워 운동의 중심지가 됐습니다. 세드릭 부샤르, 마리 쿠르탱, 뵈트 에 소르베 같은 이름들이 파리의 내추럴 와인 바를 점령 중이에요. 레 리세 마을은 프랑스에서 가장 희귀한 로제 중 하나인 '로제 데 리세'의 고향이기도 합니다.</p>
-</div>
+  <article>
+    <div class="tag">CÔTE DES BAR</div>
+    <h3>코트 데 바르 <small>남쪽의 반전 · 그로워들의 무대</small></h3>
+    <p>샹파뉴 본체에서 남쪽으로 100km 떨어진 오브(Aube) 지역입니다. 지질학적으로는 오히려 샤블리와 같은 <b>키메리지안 토양</b>이라 한때 "여기가 진짜 샹파뉴냐"는 서러운 논쟁(1911년 폭동까지)을 겪었습니다. 지금은 완전한 반전 — 햇살을 넉넉히 받은 <b>피노 누아</b>가 개성 강한 샴페인이 되고, 자연주의 그로워 운동의 중심지가 됐습니다. 세드릭 부샤르, 마리 쿠르탱, 뵈트 에 소르베 같은 이름들이 파리의 내추럴 와인 바를 점령 중입니다. 레 리세 마을은 프랑스에서 가장 희귀한 로제 '로제 데 리세'의 고향이기도 합니다.</p>
+  </article>
+</section>
 
 </main>
 </body>
