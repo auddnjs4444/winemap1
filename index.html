@@ -68,6 +68,7 @@
 
   /* Leaflet 요소를 다크 테마에 맞게 손질 */
   .leaflet-container { background: #1d2530; font: inherit; }
+  .leaflet-container path.leaflet-interactive:focus { outline: none; }
   .region-tooltip {
     background: rgba(22, 18, 26, 0.92); color: var(--text);
     border: 1px solid var(--line); border-radius: 8px;
@@ -242,7 +243,8 @@ function makeGeoLayer(fc) {
       const app = f.properties.app;
       const label = app === "Champagne" ? REGIONS[sub].name.split(" (")[0] : app;
       layer.bindTooltip(label, { sticky: true, className: "region-tooltip" });
-      layer.on("click", () => selectRegion(sub));
+      // 지도 위에서 클릭할 땐 화면을 움직이지 않음 (fly=false)
+      layer.on("click", () => selectRegion(sub, false));
       layer.on("mouseover", () => layer.setStyle({ fillOpacity: 0.6 }));
       layer.on("mouseout", () => layer.setStyle(styleFor(sub, selectedRegion === sub)));
       featureLayers.push({ layer, sub });
@@ -336,13 +338,13 @@ function renderHome() {
       </div>`).join("")}`;
 }
 
-function selectRegion(id) {
+function selectRegion(id, fly = true) {
   selectedRegion = id;
   searchInput.value = "";
   const r = REGIONS[id];
   if (r.map !== currentMap) switchMap(r.map, false);
   highlightRegion(id);
-  map.flyTo([r.lat, r.lng], 11, { duration: 0.8 });
+  if (fly) map.flyTo([r.lat, r.lng], 11, { duration: 0.8 });
   renderRegion(id);
 }
 window.selectRegion = selectRegion;
