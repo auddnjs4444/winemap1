@@ -11,8 +11,17 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #fff; font-family: "Noto Serif KR", "Cormorant", serif; font-weight: 300; }
-  .hero { position: relative; }
-  .photo { display: block; width: 100%; height: auto; filter: brightness(1.1) contrast(1.02); }
+  .hero { position: relative; height: 100vh; overflow: hidden; }
+  .photo {
+    display: block; width: 100%; height: 100%;
+    object-fit: cover; object-position: center 68%;
+    filter: brightness(1.1) contrast(1.02);
+    animation: pan 4s cubic-bezier(0.33, 0, 0.2, 1) forwards;
+  }
+  @keyframes pan {
+    from { object-position: center 8%; }
+    to   { object-position: center 68%; }
+  }
   .overlay {
     position: absolute; inset: 0;
     background: linear-gradient(to bottom, #00000052 0%, #00000018 40%, #00000000 60%, #00000060 100%);
@@ -21,6 +30,12 @@
     position: absolute; top: 0; left: 0; right: 0; height: 100vh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     gap: 26px; text-align: center; padding: 24px; z-index: 2; color: #fff;
+    opacity: 0; animation: fadein 1.6s ease 1.2s forwards;
+  }
+  @keyframes fadein { to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .photo { animation: none; }
+    main { animation: none; opacity: 1; }
   }
   .paren { font-family: "Cormorant", serif; font-weight: 300; font-size: 17px; text-shadow: 0 1px 10px rgba(0,0,0,.4); }
   h1 {
@@ -44,13 +59,6 @@
   }
   nav a:hover .fr { letter-spacing: 0.12em; }
   nav a:hover .sub { border-color: #fff; color: #fff; }
-  .scroll-hint {
-    position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); z-index: 2;
-    animation: bob 2.4s ease-in-out infinite;
-  }
-  .scroll-hint .paren { font-size: 15px; color: #ffffffd9; }
-  @keyframes bob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 7px); } }
-  @media (prefers-reduced-motion: reduce) { .scroll-hint { animation: none; } }
   footer {
     padding: 26px 24px 32px; text-align: center;
     font-family: "Cormorant", serif; font-size: 14px; letter-spacing: 0.1em;
@@ -76,7 +84,6 @@
         <a href="guide.html"><span class="fr">Le Guide</span><span class="sub">가이드</span></a>
       </nav>
     </main>
-    <div class="scroll-hint"><span class="paren">(Scroll)</span></div>
   </div>
   <footer>ROMANÉE-CONTI · VOSNE-ROMANÉE — DONNÉES INAO · © OPENSTREETMAP © CARTO</footer>
 </body>
